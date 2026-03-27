@@ -21,5 +21,9 @@ async def get_users():
         if not MOCK_USERS:
             raise HTTPException(status_code=404, detail="No users found")
         return MOCK_USERS
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    except HTTPException:
+        # Re-raise HTTP exceptions (like the 404 above) so they are not converted to 500 errors
+        raise
+    except Exception:
+        # Return a generic 500 error without exposing internal exception details
+        raise HTTPException(status_code=500, detail="Internal server error")
