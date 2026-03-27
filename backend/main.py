@@ -1,5 +1,8 @@
 from fastapi import FastAPI
-from routers import users
+try:
+    from backend.routers import users
+except ImportError:
+    from routers import users
 
 app = FastAPI(
     title="MPI App API",
