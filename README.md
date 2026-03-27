@@ -122,3 +122,45 @@ uvicorn main:app --reload
 ```
 
 🎉 **Success!** The API documentation (Swagger UI) is automatically generated and available at: http://localhost:8000/docs.
+
+---
+
+## 5. Docker Setup (Recommended)
+
+This is the simplest way to run the full stack (Backend + PostgreSQL) without any local configuration.
+
+### Prerequisites
+
+- **Docker Desktop** installed and running.
+
+### Run the full stack
+
+```bash
+# Clone the repo and navigate to the root
+git clone <repo-url>
+cd mpi-app
+
+# Build images and start all services
+docker compose up --build
+```
+
+The first run will build the backend image and pull the PostgreSQL image. Subsequent runs will be faster.
+
+### Access the application
+
+- **Swagger UI (API Docs):** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
+
+### Stop the stack
+
+```bash
+docker compose down
+```
+
+To also remove the database volume (reset all data):
+
+```bash
+docker compose down -v
+```
+
+> **Hot-Reload:** Any changes to files in `backend/` are immediately reflected inside the running container — no rebuild required.
