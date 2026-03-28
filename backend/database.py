@@ -1,9 +1,11 @@
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env from repo root (works for both native and Docker runs)
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 if not SQLALCHEMY_DATABASE_URL:

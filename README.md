@@ -40,13 +40,29 @@ Managing employee leave requests through disparate channels (emails, direct mess
 ### Step 1: Environment Variables (`.env`)
 
 The application relies on environment variables for secure database connections.
-Create a file named `.env` inside the `backend/` directory and add the following connection string:
+Copy the example file from the repo root and fill in your credentials:
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+copy .env.example .env
+```
+
+Then edit `.env`:
 
 ```env
-# backend/.env
-# Note: We map to port 5433 locally to avoid conflicts with other default PostgreSQL instances.
-DATABASE_URL=postgresql://postgres:postgres@localhost:5433/mpi_db
+# .env (repo root)
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password_here
+POSTGRES_DB=mpi_db
+
+# Used when running the backend natively (outside Docker)
+DATABASE_URL=postgresql://postgres:your_password_here@localhost:5433/mpi_db
 ```
+
+> **Important:** Never commit `.env` to Git. It is already listed in `.gitignore`.
 
 ### Step 2: Database Setup
 
@@ -122,3 +138,77 @@ uvicorn main:app --reload
 ```
 
 🎉 **Success!** The API documentation (Swagger UI) is automatically generated and available at: http://localhost:8000/docs.
+
+---
+
+## 5. Docker Setup (Recommended)
+
+This is the simplest way to run the full stack (Backend + PostgreSQL) without any local configuration.
+
+### Prerequisites
+
+- **Windows / macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+- **Linux:** Docker Engine + Docker Compose plugin installed.
+  ```bash
+  sudo apt-get install docker.io docker-compose-plugin  # Debian/Ubuntu
+  sudo systemctl start docker
+  ```
+
+### Step 1: Create your `.env` file
+
+Copy the example file and fill in your credentials:
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+copy .env.example .env
+```
+
+Then edit `.env`:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password_here
+POSTGRES_DB=mpi_db
+
+# Used when running the backend natively (outside Docker)
+DATABASE_URL=postgresql://postgres:your_password_here@localhost:5433/mpi_db
+```
+
+> **Important:** Never commit `.env` to Git. It is already listed in `.gitignore`.
+
+### Step 2: Run the full stack
+
+> **Note:** The `DATABASE_URL` is injected automatically from your `.env` via `docker-compose.yml` — no manual database setup needed. PostgreSQL is exposed on **host port 5433** to avoid conflicts with any locally running PostgreSQL instance.
+
+```bash
+# Clone the repo and navigate to the root
+git clone <repo-url>
+cd mpi-app
+
+# Build images and start all services
+docker compose up --build
+```
+
+The first run will build the backend image and pull the PostgreSQL image. Subsequent runs will be faster.
+
+### Access the application
+
+- **Swagger UI (API Docs):** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
+
+### Stop the stack
+
+```bash
+docker compose down
+```
+
+To also remove the database volume (reset all data):
+
+```bash
+docker compose down -v
+```
+
+> **Hot-Reload:** Any changes to files in `backend/` are immediately reflected inside the running container — no rebuild required.
