@@ -1,14 +1,26 @@
 from fastapi import FastAPI
-from routers import users
-from database import engine, SessionLocal
+from fastapi.middleware.cors import CORSMiddleware
 import models
+from database import engine, SessionLocal
+from routers import users
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="MPI App API",
+    title="APPI for Leave Management System",
     description="Backend API for the Leave Management System",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 def get_db():
