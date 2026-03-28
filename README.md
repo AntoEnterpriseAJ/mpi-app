@@ -40,13 +40,29 @@ Managing employee leave requests through disparate channels (emails, direct mess
 ### Step 1: Environment Variables (`.env`)
 
 The application relies on environment variables for secure database connections.
-Create a file named `.env` inside the `backend/` directory and add the following connection string:
+Copy the example file from the repo root and fill in your credentials:
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+copy .env.example .env
+```
+
+Then edit `.env`:
 
 ```env
-# backend/.env
-# Note: We map to port 5433 locally to avoid conflicts with other default PostgreSQL instances.
-DATABASE_URL=postgresql://postgres:postgres@localhost:5433/mpi_db
+# .env (repo root)
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password_here
+POSTGRES_DB=mpi_db
+
+# Used when running the backend natively (outside Docker)
+DATABASE_URL=postgresql://postgres:your_password_here@localhost:5433/mpi_db
 ```
+
+> **Important:** Never commit `.env` to Git. It is already listed in `.gitignore`.
 
 ### Step 2: Database Setup
 
@@ -131,11 +147,41 @@ This is the simplest way to run the full stack (Backend + PostgreSQL) without an
 
 ### Prerequisites
 
-- **Docker Desktop** installed and running.
+- **Windows / macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+- **Linux:** Docker Engine + Docker Compose plugin installed.
+  ```bash
+  sudo apt-get install docker.io docker-compose-plugin  # Debian/Ubuntu
+  sudo systemctl start docker
+  ```
 
-### Run the full stack
+### Step 1: Create your `.env` file
 
-> **Note:** No `.env` file is needed for Docker Compose — the `DATABASE_URL` is injected automatically via `docker-compose.yml`. The PostgreSQL database is exposed on **host port 5433** (mapped from container port 5432) to avoid conflicts with any locally running PostgreSQL instance.
+Copy the example file and fill in your credentials:
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+copy .env.example .env
+```
+
+Then edit `.env`:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password_here
+POSTGRES_DB=mpi_db
+
+# Used when running the backend natively (outside Docker)
+DATABASE_URL=postgresql://postgres:your_password_here@localhost:5433/mpi_db
+```
+
+> **Important:** Never commit `.env` to Git. It is already listed in `.gitignore`.
+
+### Step 2: Run the full stack
+
+> **Note:** The `DATABASE_URL` is injected automatically from your `.env` via `docker-compose.yml` — no manual database setup needed. PostgreSQL is exposed on **host port 5433** to avoid conflicts with any locally running PostgreSQL instance.
 
 ```bash
 # Clone the repo and navigate to the root
