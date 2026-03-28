@@ -135,6 +135,8 @@ This is the simplest way to run the full stack (Backend + PostgreSQL) without an
 
 ### Run the full stack
 
+> **Note:** No `.env` file is needed for Docker Compose — the `DATABASE_URL` is injected automatically via `docker-compose.yml`. The PostgreSQL database is exposed on **host port 5433** (mapped from container port 5432) to avoid conflicts with any locally running PostgreSQL instance.
+
 ```bash
 # Clone the repo and navigate to the root
 git clone <repo-url>
