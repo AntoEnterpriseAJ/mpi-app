@@ -11,6 +11,7 @@ export function HomePage() {
   const handleHealthCheck = async () => {
     setIsLoading(true);
     setError('');
+    setHealth(null);
 
     try {
       const response = await getHealth();

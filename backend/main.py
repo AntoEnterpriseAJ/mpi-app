@@ -7,7 +7,7 @@ from routers import users
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="APPI for Leave Management System",
+    title="API for Leave Management System",
     description="Backend API for the Leave Management System",
     version="1.0.0"
 )
