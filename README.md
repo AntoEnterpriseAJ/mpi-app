@@ -24,7 +24,7 @@ Managing employee leave requests through disparate channels (emails, direct mess
 
 - **Backend:** Python 3.14+, FastAPI, Pydantic (Data Validation)
 - **Database:** PostgreSQL, SQLAlchemy (ORM)
-- **Frontend:** ....
+- **Frontend:** React, TypeScript, Vite
 - **DevOps:** Docker, Docker Compose, Git
 
 ---
@@ -34,6 +34,7 @@ Managing employee leave requests through disparate channels (emails, direct mess
 ### Prerequisites
 
 - **Python 3.14+** installed and added to PATH.
+- **Node.js 20+** installed (includes `npm`) for running the frontend.
 - **Git** installed.
 - **Docker Desktop** (Recommended for Frontend/DevOps) OR **PostgreSQL** installed natively.
 
@@ -138,6 +139,59 @@ uvicorn main:app --reload
 ```
 
 🎉 **Success!** The API documentation (Swagger UI) is automatically generated and available at: http://localhost:8000/docs.
+
+### Step 4: Frontend Setup & Running the App
+
+Open a new terminal and run the frontend locally with Vite.
+
+The backend must be running before starting the frontend.
+
+1. Navigate to the frontend folder
+
+```bash
+cd mpi-app/frontend
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Configure frontend environment variables
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+copy .env.example .env
+```
+
+Default value in `.env`:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+4. Start the development server
+
+```bash
+npm run dev
+```
+The frontend will be available at:
+http://localhost:5173
+
+Available Pages
+/ → Home (Backend health check)
+/users → Users list (fetched from backend API)
+
+5. Optional: production build and preview
+
+```bash
+npm run build
+npm run preview
+```
 
 ---
 
