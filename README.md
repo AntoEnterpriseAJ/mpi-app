@@ -239,11 +239,23 @@ Press `Ctrl+Shift+P` → **Python: Select Interpreter** → choose the one endin
 
 This step is required so that Pylance, Mypy, and the Ruff VS Code extension all use the same environment where dependencies are installed. Without it, you will see false "module not found" errors on every import.
 
-**Step 5 — Install the Ruff VS Code extension**
+**Step 5 — Install recommended VS Code extensions**
 
-In VS Code, open the Extensions panel (`Ctrl+Shift+X`), search for **Ruff** and install the one published by **Astral Software** (identifier: `charliermarsh.ruff`).
+When you open the repo in VS Code, you will see a popup: **"Do you want to install the recommended extensions for this repository?"** — click **Install All**.
 
-Once installed, the workspace settings in `.vscode/settings.json` already configure it so that on every Ctrl+S in a Python file VS Code will automatically:
+This installs all extensions listed in `.vscode/extensions.json`:
+
+| Extension | Publisher | Purpose |
+|-----------|-----------|---------|
+| Python | Microsoft | Python language support |
+| Pylance | Microsoft | Fast type checking and IntelliSense |
+| Ruff | Astral Software | Linting and formatting for Python on save |
+| Prettier | Prettier | Formatting for TS/TSX/HTML/JSON on save |
+| Docker | Microsoft | Docker Compose and container support |
+
+If you dismiss the popup, you can install them manually via `Ctrl+Shift+X`.
+
+Once the Ruff extension is installed, the workspace settings in `.vscode/settings.json` already configure it so that on every `Ctrl+S` in a Python file VS Code will automatically:
 
 - **Format** the file (spacing, line breaks, consistent style)
 - **Fix** all auto-fixable lint issues (e.g. unused imports)
@@ -334,11 +346,13 @@ npm install
 
 This installs ESLint, Prettier, and all plugins listed in `package.json`.
 
-**Step 2 — Install the Prettier VS Code extension**
+**Step 2 — Install recommended VS Code extensions**
 
-In VS Code, open the Extensions panel (`Ctrl+Shift+X`), search for **Prettier - Code formatter** and install the one published by **Prettier** (identifier: `esbenp.prettier-vscode`).
+When you open the repo in VS Code, you will see a popup: **"Do you want to install the recommended extensions for this repository?"** — click **Install All**. This installs Prettier along with the other extensions listed in `.vscode/extensions.json`.
 
-Once installed, the workspace settings in `.vscode/settings.json` already configure VS Code to use Prettier as the formatter for TypeScript, TSX, HTML, and JSON files. On every `Ctrl+S`, the file will be automatically formatted.
+If you dismiss the popup, install Prettier manually via `Ctrl+Shift+X` (identifier: `esbenp.prettier-vscode`).
+
+Once installed, the workspace settings in `.vscode/settings.json` configure VS Code to use Prettier as the formatter for TypeScript, TSX, HTML, and JSON files on every `Ctrl+S`. Markdown files are excluded from auto-formatting.
 
 > **Note:** No additional VS Code configuration is needed — `.vscode/settings.json` is committed to the repo and handles everything.
 

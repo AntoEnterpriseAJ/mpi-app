@@ -1,6 +1,9 @@
 {
   "recommendations": [
     "esbenp.prettier-vscode",
-    "charliermarsh.ruff"
+    "charliermarsh.ruff",
+    "ms-python.python",
+    "ms-python.pylance",
+    "ms-azuretools.vscode-docker"
   ]
 }
