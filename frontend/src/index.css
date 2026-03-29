@@ -130,10 +130,7 @@ code {
 
 .app-title {
   margin: 0.35rem 0 0;
-  font-family:
-    Sora,
-    'Segoe UI',
-    sans-serif;
+  font-family: Sora, 'Segoe UI', sans-serif;
   font-size: clamp(1.9rem, 3.4vw, 2.8rem);
   line-height: 1.15;
 }
@@ -204,10 +201,7 @@ code {
   border-radius: 12px;
   border: 1px solid transparent;
   padding: 0.64rem 1.1rem;
-  font-family:
-    Sora,
-    'Segoe UI',
-    sans-serif;
+  font-family: Sora, 'Segoe UI', sans-serif;
   font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
@@ -275,10 +269,7 @@ code {
 
 .section-title {
   margin: 0;
-  font-family:
-    Sora,
-    'Segoe UI',
-    sans-serif;
+  font-family: Sora, 'Segoe UI', sans-serif;
   font-size: 1.15rem;
 }
 
@@ -360,10 +351,7 @@ code {
 
 .user-heading-row h3 {
   margin: 0;
-  font-family:
-    Sora,
-    'Segoe UI',
-    sans-serif;
+  font-family: Sora, 'Segoe UI', sans-serif;
   font-size: 1.03rem;
 }
 
