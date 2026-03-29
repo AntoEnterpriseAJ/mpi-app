@@ -317,7 +317,70 @@ def health_check() -> dict[str, str]:
 
 ---
 
-## 6. Docker Setup (Recommended)
+## 6. Frontend Code Quality
+
+The frontend uses [ESLint](https://eslint.org/) for linting and [Prettier](https://prettier.io/) for formatting. Both are configured in the `frontend/` folder and integrate with VS Code on save.
+
+### One-time setup (every team member)
+
+**Step 1 — Install dependencies**
+
+From the `frontend/` folder (or from the repo root via Docker — see Section 7):
+
+```bash
+cd frontend
+npm install
+```
+
+This installs ESLint, Prettier, and all plugins listed in `package.json`.
+
+**Step 2 — Install the Prettier VS Code extension**
+
+In VS Code, open the Extensions panel (`Ctrl+Shift+X`), search for **Prettier - Code formatter** and install the one published by **Prettier** (identifier: `esbenp.prettier-vscode`).
+
+Once installed, the workspace settings in `.vscode/settings.json` already configure VS Code to use Prettier as the formatter for TypeScript, TSX, HTML, and JSON files. On every `Ctrl+S`, the file will be automatically formatted.
+
+> **Note:** No additional VS Code configuration is needed — `.vscode/settings.json` is committed to the repo and handles everything.
+
+### Run checks
+
+```bash
+# From the frontend/ folder:
+
+# Check for lint issues
+npm run lint
+
+# Auto-fix lint issues
+npm run lint:fix
+
+# Check formatting (CI-safe, no writes)
+npm run format:check
+
+# Auto-format all files
+npm run format
+```
+
+### Configuration files
+
+| File                        | Purpose                                                                    |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `frontend/eslint.config.js` | ESLint rules for React + TypeScript + Prettier integration                 |
+| `frontend/.prettierrc`      | Prettier formatting rules (single quotes, 2-space indent, trailing commas) |
+| `frontend/.prettierignore`  | Files excluded from Prettier formatting (`dist/`, `node_modules/`)         |
+
+### Prettier rules
+
+| Option          | Value   | Effect                                   |
+| --------------- | ------- | ---------------------------------------- |
+| `singleQuote`   | `true`  | Use `'` instead of `"` in JS/TS          |
+| `semi`          | `true`  | Always add semicolons                    |
+| `tabWidth`      | `2`     | 2-space indentation                      |
+| `trailingComma` | `"all"` | Trailing commas in multi-line structures |
+| `printWidth`    | `80`    | Wrap lines longer than 80 characters     |
+
+---
+
+## 7. Docker Setup (Recommended)
 
 This is the simplest way to run the full stack (**Frontend + Backend + PostgreSQL**) without any local configuration. No Node.js or Python installation required on the host.
 
