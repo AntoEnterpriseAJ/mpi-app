@@ -43,7 +43,11 @@ body::before {
   height: 500px;
   top: -180px;
   right: -120px;
-  background: radial-gradient(circle, rgba(243, 155, 87, 0.34), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(243, 155, 87, 0.34),
+    transparent 70%
+  );
 }
 
 body::after {
@@ -51,7 +55,11 @@ body::after {
   height: 520px;
   left: -220px;
   bottom: -260px;
-  background: radial-gradient(circle, rgba(11, 125, 112, 0.26), transparent 66%);
+  background: radial-gradient(
+    circle,
+    rgba(11, 125, 112, 0.26),
+    transparent 66%
+  );
 }
 
 #root {
@@ -59,7 +67,10 @@ body::after {
 }
 
 code {
-  font-family: Consolas, Courier New, monospace;
+  font-family:
+    Consolas,
+    Courier New,
+    monospace;
   font-size: 0.94rem;
 }
 
@@ -86,7 +97,11 @@ code {
   height: 220px;
   top: 10px;
   right: 18px;
-  background: radial-gradient(circle, rgba(11, 125, 112, 0.32), transparent 72%);
+  background: radial-gradient(
+    circle,
+    rgba(11, 125, 112, 0.32),
+    transparent 72%
+  );
 }
 
 .page-glow-b {
@@ -94,7 +109,11 @@ code {
   height: 190px;
   top: 84px;
   right: 144px;
-  background: radial-gradient(circle, rgba(243, 155, 87, 0.28), transparent 75%);
+  background: radial-gradient(
+    circle,
+    rgba(243, 155, 87, 0.28),
+    transparent 75%
+  );
 }
 
 .app-header {
@@ -114,7 +133,10 @@ code {
 
 .app-title {
   margin: 0.35rem 0 0;
-  font-family: Sora, Segoe UI, sans-serif;
+  font-family:
+    Sora,
+    Segoe UI,
+    sans-serif;
   font-size: clamp(1.9rem, 3.4vw, 2.8rem);
   line-height: 1.15;
 }
@@ -129,7 +151,11 @@ code {
 .card {
   position: relative;
   z-index: 1;
-  background: linear-gradient(170deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.88));
+  background: linear-gradient(
+    170deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.88)
+  );
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 1.35rem 1.45rem;
@@ -181,12 +207,18 @@ code {
   border-radius: 12px;
   border: 1px solid transparent;
   padding: 0.64rem 1.1rem;
-  font-family: Sora, Segoe UI, sans-serif;
+  font-family:
+    Sora,
+    Segoe UI,
+    sans-serif;
   font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
 }
 
 .btn:focus-visible {
@@ -246,7 +278,10 @@ code {
 
 .section-title {
   margin: 0;
-  font-family: Sora, Segoe UI, sans-serif;
+  font-family:
+    Sora,
+    Segoe UI,
+    sans-serif;
   font-size: 1.15rem;
 }
 
@@ -262,7 +297,9 @@ code {
   font-weight: 600;
   text-decoration: none;
   border-bottom: 1px dashed rgba(23, 64, 90, 0.4);
-  transition: color 180ms ease, border-color 180ms ease;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
 }
 
 .inline-link:hover {
@@ -326,7 +363,10 @@ code {
 
 .user-heading-row h3 {
   margin: 0;
-  font-family: Sora, Segoe UI, sans-serif;
+  font-family:
+    Sora,
+    Segoe UI,
+    sans-serif;
   font-size: 1.03rem;
 }
 
@@ -380,7 +420,11 @@ code {
 
 .status-panel-error {
   border-color: rgba(186, 50, 40, 0.32);
-  background: linear-gradient(160deg, rgba(186, 50, 40, 0.08), rgba(255, 255, 255, 0.92));
+  background: linear-gradient(
+    160deg,
+    rgba(186, 50, 40, 0.08),
+    rgba(255, 255, 255, 0.92)
+  );
 }
 
 .user-grid-loading .user-card {
@@ -401,7 +445,7 @@ code {
   animation: shimmer 1.1s linear infinite;
 }
 
-.skeleton-line+.skeleton-line {
+.skeleton-line + .skeleton-line {
   margin-top: 0.55rem;
 }
 
@@ -445,7 +489,6 @@ code {
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
