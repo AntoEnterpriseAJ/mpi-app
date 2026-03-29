@@ -196,7 +196,128 @@ npm run preview
 
 ---
 
-## 5. Docker Setup (Recommended)
+## 5. Backend Code Quality
+
+The backend uses [Ruff](https://docs.astral.sh/ruff/) for linting and formatting. Ruff is configured in `pyproject.toml` at the repo root.
+
+### One-time setup (every team member)
+
+**Step 1 — Create a virtual environment inside `backend/`**
+
+```bash
+cd backend
+
+# Windows
+python -m venv .venv
+
+# Linux / macOS
+python3 -m venv .venv
+```
+
+**Step 2 — Activate it**
+
+```bash
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Windows (Command Prompt)
+.venv\Scripts\activate.bat
+
+# Linux / macOS
+source .venv/bin/activate
+```
+
+**Step 3 — Install all dependencies (including Ruff)**
+
+```bash
+pip install -r requirements.txt
+```
+
+**Step 4 — Point VS Code to the right interpreter**
+
+Press `Ctrl+Shift+P` → **Python: Select Interpreter** → choose the one ending in `backend\.venv\Scripts\python.exe` (Windows) or `backend/.venv/bin/python` (Linux/macOS).
+
+This step is required so that Pylance, Mypy, and the Ruff VS Code extension all use the same environment where dependencies are installed. Without it, you will see false "module not found" errors on every import.
+
+**Step 5 — Install the Ruff VS Code extension**
+
+In VS Code, open the Extensions panel (`Ctrl+Shift+X`), search for **Ruff** and install the one published by **Astral Software** (identifier: `charliermarsh.ruff`).
+
+Once installed, the workspace settings in `.vscode/settings.json` already configure it so that on every Ctrl+S in a Python file VS Code will automatically:
+
+- **Format** the file (spacing, line breaks, consistent style)
+- **Fix** all auto-fixable lint issues (e.g. unused imports)
+- **Sort imports** according to the project rules
+
+No additional configuration is needed — the `.vscode/settings.json` file in the repo handles everything.
+
+> **Note:** The `.venv` folder is already listed in `.gitignore` — do not commit it.
+
+### Run checks
+
+```bash
+# From the repo root:
+
+# Check for issues
+ruff check backend
+
+# Auto-fix what Ruff can
+ruff check --fix backend
+
+# Format code
+ruff format backend
+```
+
+**Rules enabled:**
+
+| Code      | Ruleset                | What it catches                                      |
+| --------- | ---------------------- | ---------------------------------------------------- |
+| `E` / `F` | pycodestyle + Pyflakes | Syntax errors, unused imports, undefined names       |
+| `I`       | isort                  | Import ordering                                      |
+| `UP`      | pyupgrade              | Outdated Python syntax (e.g. `typing.List` → `list`) |
+| `B`       | flake8-bugbear         | Likely bugs and design issues                        |
+| `C4`      | flake8-comprehensions  | Unnecessary list/dict/set comprehension patterns     |
+| `SIM`     | flake8-simplify        | Simplifiable code constructs                         |
+| `N`       | pep8-naming            | Naming conventions (classes, functions, variables)   |
+| `ANN`     | flake8-annotations     | Missing type annotations on public functions         |
+| `D`       | pydocstyle             | Missing or malformed docstrings (Google convention)  |
+| `S`       | flake8-bandit          | Common security issues                               |
+| `DTZ`     | flake8-datetimez       | Timezone-naive `datetime` calls                      |
+| `PT`      | flake8-pytest-style    | pytest best practices                                |
+| `TRY`     | tryceratops            | Exception handling anti-patterns                     |
+| `PERF`    | Perflint               | Performance anti-patterns                            |
+| `RUF`     | Ruff-native            | Ruff-specific rules and deprecations                 |
+
+### Docstring convention
+
+All public functions and classes must have a docstring following the **Google style**. For functions with parameters, returns, or exceptions, use the full format:
+
+```python
+def my_function(name: str, count: int) -> list[str]:
+    """One-line summary of what the function does.
+
+    Args:
+        name: Description of the name parameter.
+        count: Description of the count parameter.
+
+    Returns:
+        Description of the return value.
+
+    Raises:
+        ValueError: When count is negative.
+    """
+```
+
+Simple functions with no parameters may use a single-line docstring:
+
+```python
+def health_check() -> dict[str, str]:
+    """Verify the status of the application."""
+```
+
+---
+
+## 6. Docker Setup (Recommended)
 
 This is the simplest way to run the full stack (**Frontend + Backend + PostgreSQL**) without any local configuration. No Node.js or Python installation required on the host.
 
