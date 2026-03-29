@@ -251,6 +251,7 @@ This installs all extensions listed in `.vscode/extensions.json`:
 | Pylance | Microsoft | Fast type checking and IntelliSense |
 | Ruff | Astral Software | Linting and formatting for Python on save |
 | Prettier | Prettier | Formatting for TS/TSX/HTML/JSON on save |
+| ESLint | Microsoft | Linting for TypeScript/TSX on save |
 | Docker | Microsoft | Docker Compose and container support |
 
 If you dismiss the popup, you can install them manually via `Ctrl+Shift+X`.
@@ -331,7 +332,7 @@ def health_check() -> dict[str, str]:
 
 ## 6. Frontend Code Quality
 
-The frontend uses [ESLint](https://eslint.org/) for linting and [Prettier](https://prettier.io/) for formatting. Both are configured in the `frontend/` folder and integrate with VS Code on save.
+The frontend uses [ESLint](https://eslint.org/) for linting and [Prettier](https://prettier.io/) for formatting. Both are configured in the `frontend/` folder and integrate with VS Code on save via the ESLint and Prettier extensions.
 
 ### One-time setup (every team member)
 
