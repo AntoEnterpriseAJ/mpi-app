@@ -239,11 +239,24 @@ Press `Ctrl+Shift+P` → **Python: Select Interpreter** → choose the one endin
 
 This step is required so that Pylance, Mypy, and the Ruff VS Code extension all use the same environment where dependencies are installed. Without it, you will see false "module not found" errors on every import.
 
-**Step 5 — Install the Ruff VS Code extension**
+**Step 5 — Install recommended VS Code extensions**
 
-In VS Code, open the Extensions panel (`Ctrl+Shift+X`), search for **Ruff** and install the one published by **Astral Software** (identifier: `charliermarsh.ruff`).
+When you open the repo in VS Code, you will see a popup: **"Do you want to install the recommended extensions for this repository?"** — click **Install All**.
 
-Once installed, the workspace settings in `.vscode/settings.json` already configure it so that on every Ctrl+S in a Python file VS Code will automatically:
+This installs all extensions listed in `.vscode/extensions.json`:
+
+| Extension | Publisher | Purpose |
+|-----------|-----------|---------|
+| Python | Microsoft | Python language support |
+| Pylance | Microsoft | Fast type checking and IntelliSense |
+| Ruff | Astral Software | Linting and formatting for Python on save |
+| Prettier | Prettier | Formatting for TS/TSX/HTML/JSON on save |
+| ESLint | Microsoft | Linting for TypeScript/TSX on save |
+| Docker | Microsoft | Docker Compose and container support |
+
+If you dismiss the popup, you can install them manually via `Ctrl+Shift+X`.
+
+Once the Ruff extension is installed, the workspace settings in `.vscode/settings.json` already configure it so that on every `Ctrl+S` in a Python file VS Code will automatically:
 
 - **Format** the file (spacing, line breaks, consistent style)
 - **Fix** all auto-fixable lint issues (e.g. unused imports)
@@ -317,7 +330,72 @@ def health_check() -> dict[str, str]:
 
 ---
 
-## 6. Docker Setup (Recommended)
+## 6. Frontend Code Quality
+
+The frontend uses [ESLint](https://eslint.org/) for linting and [Prettier](https://prettier.io/) for formatting. Both are configured in the `frontend/` folder and integrate with VS Code on save via the ESLint and Prettier extensions.
+
+### One-time setup (every team member)
+
+**Step 1 — Install dependencies**
+
+From the `frontend/` folder (or from the repo root via Docker — see Section 7):
+
+```bash
+cd frontend
+npm install
+```
+
+This installs ESLint, Prettier, and all plugins listed in `package.json`.
+
+**Step 2 — Install recommended VS Code extensions**
+
+When you open the repo in VS Code, you will see a popup: **"Do you want to install the recommended extensions for this repository?"** — click **Install All**. This installs Prettier along with the other extensions listed in `.vscode/extensions.json`.
+
+If you dismiss the popup, install Prettier manually via `Ctrl+Shift+X` (identifier: `esbenp.prettier-vscode`).
+
+Once installed, the workspace settings in `.vscode/settings.json` configure VS Code to use Prettier as the formatter for TypeScript, TSX, HTML, and JSON files on every `Ctrl+S`. Markdown files are excluded from auto-formatting.
+
+> **Note:** No additional VS Code configuration is needed — `.vscode/settings.json` is committed to the repo and handles everything.
+
+### Run checks
+
+```bash
+# From the frontend/ folder:
+
+# Check for lint issues
+npm run lint
+
+# Auto-fix lint issues
+npm run lint:fix
+
+# Check formatting (CI-safe, no writes)
+npm run format:check
+
+# Auto-format all files
+npm run format
+```
+
+### Configuration files
+
+| File                        | Purpose                                                                    |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `frontend/eslint.config.js` | ESLint rules for React + TypeScript + Prettier integration                 |
+| `frontend/.prettierrc`      | Prettier formatting rules (single quotes, 2-space indent, trailing commas) |
+| `frontend/.prettierignore`  | Files excluded from Prettier formatting (`dist/`, `node_modules/`)         |
+
+### Prettier rules
+
+| Option          | Value   | Effect                                   |
+| --------------- | ------- | ---------------------------------------- |
+| `singleQuote`   | `true`  | Use `'` instead of `"` in JS/TS          |
+| `semi`          | `true`  | Always add semicolons                    |
+| `tabWidth`      | `2`     | 2-space indentation                      |
+| `trailingComma` | `"all"` | Trailing commas in multi-line structures |
+| `printWidth`    | `80`    | Wrap lines longer than 80 characters     |
+
+---
+
+## 7. Docker Setup (Recommended)
 
 This is the simplest way to run the full stack (**Frontend + Backend + PostgreSQL**) without any local configuration. No Node.js or Python installation required on the host.
 
