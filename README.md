@@ -34,9 +34,9 @@ Managing employee leave requests through disparate channels (emails, direct mess
 ### Prerequisites
 
 - **Python 3.14+** installed and added to PATH.
-- **Node.js 20+** installed (includes `npm`) for running the frontend.
+- **Node.js 20+** installed (includes `npm`) for running the frontend **natively** (not required when using Docker).
 - **Git** installed.
-- **Docker Desktop** (Recommended for Frontend/DevOps) OR **PostgreSQL** installed natively.
+- **Docker Desktop** (Recommended for the full stack) OR **PostgreSQL** installed natively.
 
 ### Step 1: Environment Variables (`.env`)
 
@@ -179,6 +179,7 @@ VITE_API_URL=http://localhost:8000
 ```bash
 npm run dev
 ```
+
 The frontend will be available at:
 http://localhost:5173
 
@@ -197,7 +198,7 @@ npm run preview
 
 ## 5. Docker Setup (Recommended)
 
-This is the simplest way to run the full stack (Backend + PostgreSQL) without any local configuration.
+This is the simplest way to run the full stack (**Frontend + Backend + PostgreSQL**) without any local configuration. No Node.js or Python installation required on the host.
 
 ### Prerequisites
 
@@ -250,6 +251,7 @@ The first run will build the backend image and pull the PostgreSQL image. Subseq
 
 ### Access the application
 
+- **Frontend (React App):** http://localhost:5173
 - **Swagger UI (API Docs):** http://localhost:8000/docs
 - **ReDoc:** http://localhost:8000/redoc
 
@@ -265,4 +267,5 @@ To also remove the database volume (reset all data):
 docker compose down -v
 ```
 
-> **Hot-Reload:** Any changes to files in `backend/` are immediately reflected inside the running container — no rebuild required.
+> **Hot-Reload:** Any changes to files in `backend/` or `frontend/src/` are immediately reflected inside the running containers — no rebuild required.
+> The frontend Vite dev server proxies API calls to the backend through the Docker internal network (`http://api:8000`), so no host-level CORS configuration is needed.
