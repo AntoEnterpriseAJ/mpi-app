@@ -245,14 +245,14 @@ When you open the repo in VS Code, you will see a popup: **"Do you want to insta
 
 This installs all extensions listed in `.vscode/extensions.json`:
 
-| Extension | Publisher | Purpose |
-|-----------|-----------|---------|
-| Python | Microsoft | Python language support |
-| Pylance | Microsoft | Fast type checking and IntelliSense |
-| Ruff | Astral Software | Linting and formatting for Python on save |
-| Prettier | Prettier | Formatting for TS/TSX/HTML/JSON on save |
-| ESLint | Microsoft | Linting for TypeScript/TSX on save |
-| Docker | Microsoft | Docker Compose and container support |
+| Extension | Publisher       | Purpose                                   |
+| --------- | --------------- | ----------------------------------------- |
+| Python    | Microsoft       | Python language support                   |
+| Pylance   | Microsoft       | Fast type checking and IntelliSense       |
+| Ruff      | Astral Software | Linting and formatting for Python on save |
+| Prettier  | Prettier        | Formatting for TS/TSX/HTML/JSON on save   |
+| ESLint    | Microsoft       | Linting for TypeScript/TSX on save        |
+| Docker    | Microsoft       | Docker Compose and container support      |
 
 If you dismiss the popup, you can install them manually via `Ctrl+Shift+X`.
 
@@ -401,12 +401,12 @@ Pre-commit hooks automatically run code quality checks before each `git commit`,
 
 The project uses [pre-commit](https://pre-commit.com/) with the following hooks:
 
-| Hook | Tool | What it checks |
-|------|------|----------------|
-| Ruff lint (backend) | Ruff | Linting + auto-fixes Python files in `backend/` |
-| Ruff format (backend) | Ruff | Consistent formatting of Python files in `backend/` |
-| ESLint (frontend) | ESLint | Linting + auto-fixes TypeScript/React files in `frontend/src/` |
-| Prettier (frontend) | Prettier | Consistent formatting of all frontend source files |
+| Hook                  | Tool     | What it checks                                                 |
+| --------------------- | -------- | -------------------------------------------------------------- |
+| Ruff lint (backend)   | Ruff     | Linting + auto-fixes Python files in `backend/`                |
+| Ruff format (backend) | Ruff     | Consistent formatting of Python files in `backend/`            |
+| ESLint (frontend)     | ESLint   | Linting + auto-fixes TypeScript/React files in `frontend/src/` |
+| Prettier (frontend)   | Prettier | Consistent formatting of all frontend source files             |
 
 ### One-time setup (every team member)
 
@@ -423,10 +423,10 @@ backend\.venv\Scripts\activate.bat
 source backend/.venv/bin/activate
 ```
 
-**Step 2 — Install pre-commit** (it is already listed in `backend/requirements.txt`)
+**Step 2 — Install pre-commit** (it is listed in `backend/requirements-dev.txt`)
 
 ```bash
-pip install -r backend/requirements.txt
+pip install -r backend/requirements-dev.txt
 ```
 
 **Step 3 — Install the git hooks**
@@ -467,7 +467,7 @@ pre-commit run prettier      # Prettier only
 ### What happens during a commit
 
 1. You run `git commit`.
-2. Each hook runs against the staged files it is configured to check.
+2. Each hook runs against the files it is configured to check. The **backend hooks** (Ruff lint/format) operate only on the staged files. The **frontend hooks** (ESLint, Prettier) also target only the staged files, since they now receive filenames directly rather than running a project-wide npm script.
 3. **If a hook auto-fixes files** (Ruff format, Prettier, ESLint auto-fix), the commit is aborted and the fixed files are left on disk but **not** re-staged. Run `git add` on the changed files and commit again — the second attempt will succeed.
 4. **If a hook finds unfixable errors** (e.g. a Ruff lint rule with no auto-fix), the commit is aborted and the errors are printed. Fix them manually, `git add`, and commit again.
 
@@ -483,12 +483,12 @@ git commit --no-verify -m "your message"
 
 ### Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---------|-------------|-----|
-| `pre-commit: command not found` | `pre-commit` not installed or venv not active | Activate the venv and run `pip install -r backend/requirements.txt` |
-| ESLint or Prettier hook fails with "npm: command not found" | Node.js not in PATH | Install Node.js 20+ and ensure `npm` is accessible in your shell |
-| ESLint or Prettier hook fails with "Cannot find module" | `frontend/node_modules` missing | Run `npm install` inside the `frontend/` folder |
-| Hook fails on first run while downloading Ruff | Network / firewall issue | Try again; pre-commit caches the tool after the first download |
+| Symptom                                                     | Likely cause                                  | Fix                                                                     |
+| ----------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------- |
+| `pre-commit: command not found`                             | `pre-commit` not installed or venv not active | Activate the venv and run `pip install -r backend/requirements-dev.txt` |
+| ESLint or Prettier hook fails with "npm: command not found" | Node.js not in PATH                           | Install Node.js 20+ and ensure `npm` is accessible in your shell        |
+| ESLint or Prettier hook fails with "Cannot find module"     | `frontend/node_modules` missing               | Run `npm install` inside the `frontend/` folder                         |
+| Hook fails on first run while downloading Ruff              | Network / firewall issue                      | Try again; pre-commit caches the tool after the first download          |
 
 ---
 
