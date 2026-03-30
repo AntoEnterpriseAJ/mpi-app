@@ -395,7 +395,104 @@ npm run format
 
 ---
 
-## 7. Docker Setup (Recommended)
+## 7. Pre-commit Hooks
+
+Pre-commit hooks automatically run code quality checks before each `git commit`, preventing poorly formatted or problematic code from entering the repository.
+
+The project uses [pre-commit](https://pre-commit.com/) with the following hooks:
+
+| Hook | Tool | What it checks |
+|------|------|----------------|
+| Ruff lint (backend) | Ruff | Linting + auto-fixes Python files in `backend/` |
+| Ruff format (backend) | Ruff | Consistent formatting of Python files in `backend/` |
+| ESLint (frontend) | ESLint | Linting + auto-fixes TypeScript/React files in `frontend/src/` |
+| Prettier (frontend) | Prettier | Consistent formatting of all frontend source files |
+
+### One-time setup (every team member)
+
+**Step 1 — Activate the backend virtual environment**
+
+```bash
+# Windows (PowerShell)
+backend\.venv\Scripts\Activate.ps1
+
+# Windows (Command Prompt)
+backend\.venv\Scripts\activate.bat
+
+# Linux / macOS
+source backend/.venv/bin/activate
+```
+
+**Step 2 — Install pre-commit** (it is already listed in `backend/requirements.txt`)
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+**Step 3 — Install the git hooks**
+
+Run this once from the repo root:
+
+```bash
+pre-commit install
+```
+
+You will see: `pre-commit installed at .git/hooks/pre-commit`
+
+From this point on, hooks run automatically before every `git commit`.
+
+**Step 4 — Ensure frontend dependencies are installed**
+
+The ESLint and Prettier hooks call `npm` scripts directly, so `node_modules` must exist:
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+### Running hooks manually
+
+```bash
+# Run all hooks against every file in the repository
+pre-commit run --all-files
+
+# Run a single hook by its id
+pre-commit run ruff          # Ruff lint only
+pre-commit run ruff-format   # Ruff format only
+pre-commit run eslint        # ESLint only
+pre-commit run prettier      # Prettier only
+```
+
+### What happens during a commit
+
+1. You run `git commit`.
+2. Each hook runs against the staged files it is configured to check.
+3. **If a hook auto-fixes files** (Ruff format, Prettier, ESLint auto-fix), the commit is aborted and the fixed files are left on disk but **not** re-staged. Run `git add` on the changed files and commit again — the second attempt will succeed.
+4. **If a hook finds unfixable errors** (e.g. a Ruff lint rule with no auto-fix), the commit is aborted and the errors are printed. Fix them manually, `git add`, and commit again.
+
+### Skipping hooks (use sparingly)
+
+In exceptional cases you can bypass the hooks for a single commit:
+
+```bash
+git commit --no-verify -m "your message"
+```
+
+> **Do not make a habit of this.** Bypassing hooks defeats their purpose.
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|-------------|-----|
+| `pre-commit: command not found` | `pre-commit` not installed or venv not active | Activate the venv and run `pip install -r backend/requirements.txt` |
+| ESLint or Prettier hook fails with "npm: command not found" | Node.js not in PATH | Install Node.js 20+ and ensure `npm` is accessible in your shell |
+| ESLint or Prettier hook fails with "Cannot find module" | `frontend/node_modules` missing | Run `npm install` inside the `frontend/` folder |
+| Hook fails on first run while downloading Ruff | Network / firewall issue | Try again; pre-commit caches the tool after the first download |
+
+---
+
+## 8. Docker Setup (Recommended)
 
 This is the simplest way to run the full stack (**Frontend + Backend + PostgreSQL**) without any local configuration. No Node.js or Python installation required on the host.
 
