@@ -1,0 +1,45 @@
+[tool.ruff]
+line-length = 88
+# Only lint Python source files — excludes .md, .txt, .json, etc.
+include = ["**/*.py", "**/*.pyi"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # Pyflakes — undefined names, unused imports
+    "I",    # isort — import ordering
+    "UP",   # pyupgrade — modernize syntax (f-strings, new-style type hints, etc.)
+    "B",    # flake8-bugbear — likely bugs and bad design patterns
+    "C4",   # flake8-comprehensions — unnecessary list/dict/set calls
+    "SIM",  # flake8-simplify — suggest simpler equivalents
+    "N",    # pep8-naming — class names, variable names, function names
+    "ANN",  # flake8-annotations — enforce type annotations on functions
+    "D",    # pydocstyle — enforce docstrings on public modules/classes/functions
+    "S",    # flake8-bandit — security: SQL injection, hardcoded secrets, shell injection
+    "DTZ",  # flake8-datetimez — require timezone-aware datetimes (critical for leave dates)
+    "PT",   # flake8-pytest-style — enforce consistent pytest patterns
+    "TRY",  # tryceratops — best practices for try/except blocks
+    "PERF", # Perflint — performance anti-patterns
+    "RUF",  # Ruff-native rules
+]
+ignore = [
+    "E501",   # line too long — handled by Ruff formatter, not linter
+    "B008",   # function call in default args — FastAPI Depends() is intentional
+    "RUF012", # mutable class attributes — SQLAlchemy and Pydantic use this pattern
+    "ANN401", # allow Any type — needed for generic FastAPI/SQLAlchemy patterns
+    "S101",   # use of assert — allowed in pytest tests
+    "TRY003", # long exception messages — we use descriptive HTTPException details
+    "TRY300", # consider moving return into else — conflicts with FastAPI patterns
+    "D100",   # missing docstring in public module — not required at module level
+    "D104",   # missing docstring in public package — not required for __init__.py
+    "D107",   # missing docstring in __init__ — SQLAlchemy models don't need it
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+# Add the backend directory to the module search path so local modules
+# (schemas, models, database, etc.) resolve correctly
+mypy_path = "backend"
+ignore_missing_imports = true

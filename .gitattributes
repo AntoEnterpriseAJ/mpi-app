@@ -1,0 +1,31 @@
+# Normalize all text files to LF on commit.
+# This overrides core.autocrlf and ensures consistent line endings
+# for every team member regardless of their local Git config.
+* text=auto eol=lf
+
+# Common text file types (explicit for clarity)
+*.py   text eol=lf
+*.js   text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.css  text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf
+
+# Windows-specific scripts must keep CRLF to execute correctly
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binary files (never modify line endings)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.gif   binary
+*.woff  binary
+*.woff2 binary
+*.pdf   binary

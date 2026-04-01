@@ -1,0 +1,39 @@
+repos:
+  # ── Backend ────────────────────────────────────────────────────────────────
+  # Ruff: fast Python linter + formatter (replaces flake8, isort, black)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.0
+    hooks:
+      # Lint and auto-fix all fixable issues
+      - id: ruff
+        name: Ruff lint (backend)
+        args: [--fix]
+        files: ^backend/
+      # Format code consistently
+      - id: ruff-format
+        name: Ruff format (backend)
+        files: ^backend/
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  # ESLint + Prettier via local npm scripts (uses the project's own config)
+  - repo: local
+    hooks:
+      # ESLint: lint and auto-fix TypeScript/React files in frontend/src/
+      # pass_filenames: false is required — npm resolves the ESLint config from
+      # the frontend/ directory, so filenames relative to the repo root would
+      # cause config lookup to fail on all platforms.
+      - id: eslint
+        name: ESLint (frontend)
+        entry: npm
+        args: [--prefix, frontend, run, lint:fix]
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+      # Prettier: format only the staged frontend source files
+      - id: prettier
+        name: Prettier (frontend)
+        entry: npx
+        args: [--prefix, frontend, prettier, --write]
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|css|html|json)$
+        exclude: ^frontend/(node_modules|dist)/|^frontend/package-lock\.json$

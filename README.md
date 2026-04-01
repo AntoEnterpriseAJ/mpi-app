@@ -24,7 +24,7 @@ Managing employee leave requests through disparate channels (emails, direct mess
 
 - **Backend:** Python 3.14+, FastAPI, Pydantic (Data Validation)
 - **Database:** PostgreSQL, SQLAlchemy (ORM)
-- **Frontend:** ....
+- **Frontend:** React, TypeScript, Vite
 - **DevOps:** Docker, Docker Compose, Git
 
 ---
@@ -34,8 +34,9 @@ Managing employee leave requests through disparate channels (emails, direct mess
 ### Prerequisites
 
 - **Python 3.14+** installed and added to PATH.
+- **Node.js 20+** installed (includes `npm`) for running the frontend **natively** (not required when using Docker).
 - **Git** installed.
-- **Docker Desktop** (Recommended for Frontend/DevOps) OR **PostgreSQL** installed natively.
+- **Docker Desktop** (Recommended for the full stack) OR **PostgreSQL** installed natively.
 
 ### Step 1: Environment Variables (`.env`)
 
@@ -139,11 +140,361 @@ uvicorn main:app --reload
 
 🎉 **Success!** The API documentation (Swagger UI) is automatically generated and available at: http://localhost:8000/docs.
 
+### Step 4: Frontend Setup & Running the App
+
+Open a new terminal and run the frontend locally with Vite.
+
+The backend must be running before starting the frontend.
+
+1. Navigate to the frontend folder
+
+```bash
+cd mpi-app/frontend
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Configure frontend environment variables
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+copy .env.example .env
+```
+
+Default value in `.env`:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+4. Start the development server
+
+```bash
+npm run dev
+```
+
+The frontend will be available at:
+http://localhost:5173
+
+Available Pages
+/ → Home (Backend health check)
+/users → Users list (fetched from backend API)
+
+5. Optional: production build and preview
+
+```bash
+npm run build
+npm run preview
+```
+
 ---
 
-## 5. Docker Setup (Recommended)
+## 5. Backend Code Quality
 
-This is the simplest way to run the full stack (Backend + PostgreSQL) without any local configuration.
+The backend uses [Ruff](https://docs.astral.sh/ruff/) for linting and formatting. Ruff is configured in `pyproject.toml` at the repo root.
+
+### One-time setup (every team member)
+
+**Step 1 — Create a virtual environment inside `backend/`**
+
+```bash
+cd backend
+
+# Windows
+python -m venv .venv
+
+# Linux / macOS
+python3 -m venv .venv
+```
+
+**Step 2 — Activate it**
+
+```bash
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Windows (Command Prompt)
+.venv\Scripts\activate.bat
+
+# Linux / macOS
+source .venv/bin/activate
+```
+
+**Step 3 — Install all dependencies (including Ruff)**
+
+```bash
+pip install -r requirements.txt
+```
+
+**Step 4 — Point VS Code to the right interpreter**
+
+Press `Ctrl+Shift+P` → **Python: Select Interpreter** → choose the one ending in `backend\.venv\Scripts\python.exe` (Windows) or `backend/.venv/bin/python` (Linux/macOS).
+
+This step is required so that Pylance, Mypy, and the Ruff VS Code extension all use the same environment where dependencies are installed. Without it, you will see false "module not found" errors on every import.
+
+**Step 5 — Install recommended VS Code extensions**
+
+When you open the repo in VS Code, you will see a popup: **"Do you want to install the recommended extensions for this repository?"** — click **Install All**.
+
+This installs all extensions listed in `.vscode/extensions.json`:
+
+| Extension | Publisher       | Purpose                                   |
+| --------- | --------------- | ----------------------------------------- |
+| Python    | Microsoft       | Python language support                   |
+| Pylance   | Microsoft       | Fast type checking and IntelliSense       |
+| Ruff      | Astral Software | Linting and formatting for Python on save |
+| Prettier  | Prettier        | Formatting for TS/TSX/HTML/JSON on save   |
+| ESLint    | Microsoft       | Linting for TypeScript/TSX on save        |
+| Docker    | Microsoft       | Docker Compose and container support      |
+
+If you dismiss the popup, you can install them manually via `Ctrl+Shift+X`.
+
+Once the Ruff extension is installed, the workspace settings in `.vscode/settings.json` already configure it so that on every `Ctrl+S` in a Python file VS Code will automatically:
+
+- **Format** the file (spacing, line breaks, consistent style)
+- **Fix** all auto-fixable lint issues (e.g. unused imports)
+- **Sort imports** according to the project rules
+
+No additional configuration is needed — the `.vscode/settings.json` file in the repo handles everything.
+
+> **Note:** The `.venv` folder is already listed in `.gitignore` — do not commit it.
+
+### Run checks
+
+```bash
+# From the repo root:
+
+# Check for issues
+ruff check backend
+
+# Auto-fix what Ruff can
+ruff check --fix backend
+
+# Format code
+ruff format backend
+```
+
+**Rules enabled:**
+
+| Code      | Ruleset                | What it catches                                      |
+| --------- | ---------------------- | ---------------------------------------------------- |
+| `E` / `F` | pycodestyle + Pyflakes | Syntax errors, unused imports, undefined names       |
+| `I`       | isort                  | Import ordering                                      |
+| `UP`      | pyupgrade              | Outdated Python syntax (e.g. `typing.List` → `list`) |
+| `B`       | flake8-bugbear         | Likely bugs and design issues                        |
+| `C4`      | flake8-comprehensions  | Unnecessary list/dict/set comprehension patterns     |
+| `SIM`     | flake8-simplify        | Simplifiable code constructs                         |
+| `N`       | pep8-naming            | Naming conventions (classes, functions, variables)   |
+| `ANN`     | flake8-annotations     | Missing type annotations on public functions         |
+| `D`       | pydocstyle             | Missing or malformed docstrings (Google convention)  |
+| `S`       | flake8-bandit          | Common security issues                               |
+| `DTZ`     | flake8-datetimez       | Timezone-naive `datetime` calls                      |
+| `PT`      | flake8-pytest-style    | pytest best practices                                |
+| `TRY`     | tryceratops            | Exception handling anti-patterns                     |
+| `PERF`    | Perflint               | Performance anti-patterns                            |
+| `RUF`     | Ruff-native            | Ruff-specific rules and deprecations                 |
+
+### Docstring convention
+
+All public functions and classes must have a docstring following the **Google style**. For functions with parameters, returns, or exceptions, use the full format:
+
+```python
+def my_function(name: str, count: int) -> list[str]:
+    """One-line summary of what the function does.
+
+    Args:
+        name: Description of the name parameter.
+        count: Description of the count parameter.
+
+    Returns:
+        Description of the return value.
+
+    Raises:
+        ValueError: When count is negative.
+    """
+```
+
+Simple functions with no parameters may use a single-line docstring:
+
+```python
+def health_check() -> dict[str, str]:
+    """Verify the status of the application."""
+```
+
+---
+
+## 6. Frontend Code Quality
+
+The frontend uses [ESLint](https://eslint.org/) for linting and [Prettier](https://prettier.io/) for formatting. Both are configured in the `frontend/` folder and integrate with VS Code on save via the ESLint and Prettier extensions.
+
+### One-time setup (every team member)
+
+**Step 1 — Install dependencies**
+
+From the `frontend/` folder (or from the repo root via Docker — see Section 7):
+
+```bash
+cd frontend
+npm install
+```
+
+This installs ESLint, Prettier, and all plugins listed in `package.json`.
+
+**Step 2 — Install recommended VS Code extensions**
+
+When you open the repo in VS Code, you will see a popup: **"Do you want to install the recommended extensions for this repository?"** — click **Install All**. This installs Prettier along with the other extensions listed in `.vscode/extensions.json`.
+
+If you dismiss the popup, install Prettier manually via `Ctrl+Shift+X` (identifier: `esbenp.prettier-vscode`).
+
+Once installed, the workspace settings in `.vscode/settings.json` configure VS Code to use Prettier as the formatter for TypeScript, TSX, HTML, and JSON files on every `Ctrl+S`. Markdown files are excluded from auto-formatting.
+
+> **Note:** No additional VS Code configuration is needed — `.vscode/settings.json` is committed to the repo and handles everything.
+
+### Run checks
+
+```bash
+# From the frontend/ folder:
+
+# Check for lint issues
+npm run lint
+
+# Auto-fix lint issues
+npm run lint:fix
+
+# Check formatting (CI-safe, no writes)
+npm run format:check
+
+# Auto-format all files
+npm run format
+```
+
+### Configuration files
+
+| File                        | Purpose                                                                    |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `frontend/eslint.config.js` | ESLint rules for React + TypeScript + Prettier integration                 |
+| `frontend/.prettierrc`      | Prettier formatting rules (single quotes, 2-space indent, trailing commas) |
+| `frontend/.prettierignore`  | Files excluded from Prettier formatting (`dist/`, `node_modules/`)         |
+
+### Prettier rules
+
+| Option          | Value   | Effect                                   |
+| --------------- | ------- | ---------------------------------------- |
+| `singleQuote`   | `true`  | Use `'` instead of `"` in JS/TS          |
+| `semi`          | `true`  | Always add semicolons                    |
+| `tabWidth`      | `2`     | 2-space indentation                      |
+| `trailingComma` | `"all"` | Trailing commas in multi-line structures |
+| `printWidth`    | `80`    | Wrap lines longer than 80 characters     |
+
+---
+
+## 7. Pre-commit Hooks
+
+Pre-commit hooks automatically run code quality checks before each `git commit`, preventing poorly formatted or problematic code from entering the repository.
+
+The project uses [pre-commit](https://pre-commit.com/) with the following hooks:
+
+| Hook                  | Tool     | What it checks                                                 |
+| --------------------- | -------- | -------------------------------------------------------------- |
+| Ruff lint (backend)   | Ruff     | Linting + auto-fixes Python files in `backend/`                |
+| Ruff format (backend) | Ruff     | Consistent formatting of Python files in `backend/`            |
+| ESLint (frontend)     | ESLint   | Linting + auto-fixes TypeScript/React files in `frontend/src/` |
+| Prettier (frontend)   | Prettier | Consistent formatting of all frontend source files             |
+
+### One-time setup (every team member)
+
+**Step 1 — Activate the backend virtual environment**
+
+```bash
+# Windows (PowerShell)
+backend\.venv\Scripts\Activate.ps1
+
+# Windows (Command Prompt)
+backend\.venv\Scripts\activate.bat
+
+# Linux / macOS
+source backend/.venv/bin/activate
+```
+
+**Step 2 — Install pre-commit** (it is listed in `backend/requirements-dev.txt`)
+
+```bash
+pip install -r backend/requirements-dev.txt
+```
+
+**Step 3 — Install the git hooks**
+
+Run this once from the repo root:
+
+```bash
+pre-commit install
+```
+
+You will see: `pre-commit installed at .git/hooks/pre-commit`
+
+From this point on, hooks run automatically before every `git commit`.
+
+**Step 4 — Ensure frontend dependencies are installed**
+
+The ESLint and Prettier hooks call `npm` scripts directly, so `node_modules` must exist:
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+### Running hooks manually
+
+```bash
+# Run all hooks against every file in the repository
+pre-commit run --all-files
+
+# Run a single hook by its id
+pre-commit run ruff          # Ruff lint only
+pre-commit run ruff-format   # Ruff format only
+pre-commit run eslint        # ESLint only
+pre-commit run prettier      # Prettier only
+```
+
+### What happens during a commit
+
+1. You run `git commit`.
+2. Each hook runs against the files it is configured to check. The **backend hooks** (Ruff lint/format) operate only on the staged files. The **frontend hooks** (ESLint, Prettier) also target only the staged files, since they now receive filenames directly rather than running a project-wide npm script.
+3. **If a hook auto-fixes files** (Ruff format, Prettier, ESLint auto-fix), the commit is aborted and the fixed files are left on disk but **not** re-staged. Run `git add` on the changed files and commit again — the second attempt will succeed.
+4. **If a hook finds unfixable errors** (e.g. a Ruff lint rule with no auto-fix), the commit is aborted and the errors are printed. Fix them manually, `git add`, and commit again.
+
+### Skipping hooks (use sparingly)
+
+In exceptional cases you can bypass the hooks for a single commit:
+
+```bash
+git commit --no-verify -m "your message"
+```
+
+> **Do not make a habit of this.** Bypassing hooks defeats their purpose.
+
+### Troubleshooting
+
+| Symptom                                                     | Likely cause                                  | Fix                                                                     |
+| ----------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------- |
+| `pre-commit: command not found`                             | `pre-commit` not installed or venv not active | Activate the venv and run `pip install -r backend/requirements-dev.txt` |
+| ESLint or Prettier hook fails with "npm: command not found" | Node.js not in PATH                           | Install Node.js 20+ and ensure `npm` is accessible in your shell        |
+| ESLint or Prettier hook fails with "Cannot find module"     | `frontend/node_modules` missing               | Run `npm install` inside the `frontend/` folder                         |
+| Hook fails on first run while downloading Ruff              | Network / firewall issue                      | Try again; pre-commit caches the tool after the first download          |
+
+---
+
+## 8. Docker Setup (Recommended)
+
+This is the simplest way to run the full stack (**Frontend + Backend + PostgreSQL**) without any local configuration. No Node.js or Python installation required on the host.
 
 ### Prerequisites
 
@@ -196,6 +547,7 @@ The first run will build the backend image and pull the PostgreSQL image. Subseq
 
 ### Access the application
 
+- **Frontend (React App):** http://localhost:5173
 - **Swagger UI (API Docs):** http://localhost:8000/docs
 - **ReDoc:** http://localhost:8000/redoc
 
@@ -211,4 +563,5 @@ To also remove the database volume (reset all data):
 docker compose down -v
 ```
 
-> **Hot-Reload:** Any changes to files in `backend/` are immediately reflected inside the running container — no rebuild required.
+> **Hot-Reload:** Any changes to files in `backend/` or `frontend/src/` are immediately reflected inside the running containers — no rebuild required.
+> The frontend Vite dev server proxies API calls to the backend through the Docker internal network (`http://api:8000`), so no host-level CORS configuration is needed.

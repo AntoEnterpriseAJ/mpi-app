@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { API_BASE_URL } from '../config/env';
 import { getHealth, type HealthResponse } from '../services/api';
@@ -29,20 +30,42 @@ export function HomePage() {
   };
 
   return (
-    <main className="app-shell">
+    <main className="page page-home">
+      <div className="page-glow page-glow-a" aria-hidden="true" />
+      <div className="page-glow page-glow-b" aria-hidden="true" />
+
       <AppHeader
-        subtitle="MPI App"
-        title="Leave Management Frontend is ready"
+        subtitle="MPI APP"
+        title="Leave Management Control Room"
+        description="A quick integration dashboard for validating communication between Vite and FastAPI."
       />
 
-      <section className="card">
-        <p>
-          API base URL: <code>{API_BASE_URL}</code>
-        </p>
-        <button onClick={handleHealthCheck} type="button" disabled={isLoading}>
-          {isLoading ? 'Checking...' : 'Check Backend Health'}
-        </button>
-        {health && <p className="status ok">Status: {health.status}</p>}
+      <section className="card card-hero">
+        <div className="api-pill">
+          <span>API Endpoint</span>
+          <code>{API_BASE_URL}</code>
+        </div>
+
+        <div className="hero-actions">
+          <button
+            className="btn btn-primary"
+            onClick={handleHealthCheck}
+            type="button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Checking backend...' : 'Run Health Check'}
+          </button>
+
+          <Link className="btn btn-secondary" to="/users">
+            Open Users Directory
+          </Link>
+        </div>
+
+        {health && (
+          <p className="status ok">
+            Backend status: {health.status} | {health.message}
+          </p>
+        )}
         {error && <p className="status error">{error}</p>}
       </section>
     </main>
