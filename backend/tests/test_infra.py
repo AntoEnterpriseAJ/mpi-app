@@ -1,42 +1,71 @@
-import pytest
-from fastapi.testclient import TestClient
-from main import app
+from __future__ import annotations
 
-client = TestClient(app)
+import os
+from typing import TYPE_CHECKING
+
+import pytest
+
+if TYPE_CHECKING:
+    from fastapi.testclient import TestClient
+    from sqlalchemy import Engine
+    from sqlalchemy.engine.reflection import Inspector
+
+
+@pytest.fixture(scope="session")
+def client() -> TestClient:
+    """Provide a TestClient for the FastAPI app.
+
+    Import the app lazily and only after confirming DATABASE_URL is set, so that
+    test collection does not fail when the environment is not configured.
+    """
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        pytest.skip(
+            "DATABASE_URL is not configured; skipping integration tests that require the database.",
+            allow_module_level=True,
+        )
+    from fastapi.testclient import TestClient
+    from main import app
+
+    return TestClient(app)
+
 
 # TC01 & TC02: Server Startup & Health + Routing
-def test_server_startup_and_docs():
+def test_server_startup_and_docs(client: TestClient) -> None:
     """Verify Swagger UI loads and server is up."""
     response = client.get("/docs")
     assert response.status_code == 200
     assert "Swagger UI" in response.text
 
-def test_users_endpoint_routing():
     """Verify the /users endpoint exists and returns 200."""
     response = client.get("/users")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
+
 # TC03: Database Connection Accessibility
-def test_database_connection(db_engine):
+def test_database_connection(db_engine: Engine) -> None:
     """Verify we can connect to the DB."""
     try:
         connection = db_engine.connect()
         assert not connection.closed
         connection.close()
-    except Exception as e:
-        pytest.fail(f"Database connection failed: {e}")
+    except Exception as exc:
+        pytest.fail(f"Database connection failed: {exc}")
+
 
 # TC04: Automated Schema Generation
-def test_schema_generation_users_table(db_inspector):
+def test_schema_generation_users_table(db_inspector: Inspector) -> None:
     """Verify 'users' table and columns exist."""
     # Check if table exists
     tables = db_inspector.get_table_names()
     assert "users" in tables, "Table 'users' was not created by SQLAlchemy"
 
     # Check columns
-    columns = {col['name']: str(col['type']) for col in db_inspector.get_columns("users")}
-    
+    columns = {
+        col["name"]: str(col["type"]) for col in db_inspector.get_columns("users")
+    }
+
     expected_columns = ["id", "name", "role", "position", "seniority"]
     for col_name in expected_columns:
         assert col_name in columns, f"Column {col_name} is missing from 'users' table"
