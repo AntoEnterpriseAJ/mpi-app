@@ -38,6 +38,9 @@ ignore = [
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+
 [tool.mypy]
 # Add the backend directory to the module search path so local modules
 # (schemas, models, database, etc.) resolve correctly
