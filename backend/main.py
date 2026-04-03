@@ -17,14 +17,13 @@ app = FastAPI(
 )
 
 _allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
+_allowed_origins_raw = (
+    _allowed_origins_env
+    if _allowed_origins_env and _allowed_origins_env.strip()
+    else "http://localhost:5173,http://127.0.0.1:5173"
+)
 _allowed_origins = [
-    o.strip()
-    for o in (
-        _allowed_origins_env
-        if _allowed_origins_env and _allowed_origins_env.strip()
-        else "http://localhost:5173,http://127.0.0.1:5173"
-    ).split(",")
-    if o.strip()
+    o.strip() for o in _allowed_origins_raw.split(",") if o.strip() and o.strip() != "*"
 ]
 
 app.add_middleware(
