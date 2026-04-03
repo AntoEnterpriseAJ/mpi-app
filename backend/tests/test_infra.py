@@ -71,4 +71,6 @@ def test_schema_generation_users_table(db_inspector: Inspector) -> None:
     assert "int" in str(columns["id"]["type"]).lower(), "'id' must be Integer"
     for col_name in ["name", "role", "position", "seniority"]:
         col_type = str(columns[col_name]["type"]).lower()
-        assert ("char" in col_type) or ("text" in col_type), f"'{col_name}' must be String-like"
+        assert ("char" in col_type) or ("text" in col_type), (
+            f"'{col_name}' must be String-like"
+        )

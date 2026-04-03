@@ -10,6 +10,7 @@ from sqlalchemy.engine.reflection import Inspector
 # Ensure pytest loads repo-level .env before any fixture reads env vars.
 load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env")
 
+
 @pytest.fixture(scope="session")
 def db_engine() -> Generator[Engine, None, None]:
     """Create and dispose a SQLAlchemy engine for integration tests."""
