@@ -44,6 +44,9 @@ jobs:
       - name: Lint with Ruff
         run: ruff check backend
 
+      - name: Check formatting with Ruff
+        run: ruff format --check backend
+
       - name: Run tests
         run: pytest backend/tests
         env:

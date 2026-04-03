@@ -22,7 +22,7 @@ Managing employee leave requests through disparate channels (emails, direct mess
 
 ## 3. Architecture and Technologies
 
-- **Backend:** Python 3.14+, FastAPI, Pydantic (Data Validation)
+- **Backend:** Python 3.12+, FastAPI, Pydantic (Data Validation)
 - **Database:** PostgreSQL, SQLAlchemy (ORM)
 - **Frontend:** React, TypeScript, Vite
 - **DevOps:** Docker, Docker Compose, Git
@@ -33,7 +33,7 @@ Managing employee leave requests through disparate channels (emails, direct mess
 
 ### Prerequisites
 
-- **Python 3.14+** installed and added to PATH.
+- **Python 3.12+** installed and added to PATH.
 - **Node.js 20+** installed (includes `npm`) for running the frontend **natively** (not required when using Docker).
 - **Git** installed.
 - **Docker Desktop** (Recommended for the full stack) OR **PostgreSQL** installed natively.
@@ -574,16 +574,16 @@ Every push to any branch and every pull request targeting `main` automatically t
 
 ### Jobs
 
-| Job          | Runner                       | Steps                                                        |
-| ------------ | ---------------------------- | ------------------------------------------------------------ |
-| **Backend**  | `ubuntu-latest`, Python 3.12 | Install deps → `ruff check backend` → `pytest backend/tests` |
-| **Frontend** | `ubuntu-latest`, Node 22     | `npm ci` → `npm run lint` → `npm run build`                  |
+| Job          | Runner                       | Steps                                                                                        |
+| ------------ | ---------------------------- | -------------------------------------------------------------------------------------------- |
+| **Backend**  | `ubuntu-latest`, Python 3.12 | Install deps → `ruff check backend` → `ruff format --check backend` → `pytest backend/tests` |
+| **Frontend** | `ubuntu-latest`, Node 22     | `npm ci` → `npm run lint` → `npm run build`                                                  |
 
 Both jobs run in parallel. If either fails, the overall CI run is marked as failed.
 
 ### Branch protection
 
-The `main` branch is protected. GitHub will block a merge if either CI job fails. You cannot bypass this by pushing directly to `main`.
+To enforce this, configure branch protection (or repository rulesets) for `main` on GitHub and require the CI status checks to pass before merging. When those settings are enabled, GitHub will block merges if either CI job fails and restrict direct pushes to `main`.
 
 ### Running the same checks locally
 
