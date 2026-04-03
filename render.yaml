@@ -20,8 +20,9 @@ services:
       - key: ALLOWED_ORIGINS
         sync: false # set manually in Render dashboard after frontend is deployed
 
-  - type: static
+  - type: web
     name: mpi-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
