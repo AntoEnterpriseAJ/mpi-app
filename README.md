@@ -603,3 +603,53 @@ npm run build
 ```
 
 All four commands must exit with code 0 for CI to pass.
+
+---
+
+## 10. Cloud Deployment (CD)
+
+The application is deployed on [Render](https://render.com) and redeployed automatically whenever changes are merged into `main`.
+
+### Live URLs
+
+| Service  | URL                      |
+| -------- | ------------------------ |
+| Frontend | _add after first deploy_ |
+| Backend  | _add after first deploy_ |
+
+### How it works
+
+```
+merge to main
+    → Render detects new commit on main
+    → backend service redeploys (pip install + uvicorn)
+    → frontend static site rebuilds (npm ci + vite build)
+```
+
+No GitHub Actions step is needed for deployment — Render pulls directly from the linked GitHub repo.
+
+### Infrastructure as Code
+
+Deployment is defined in `render.yaml` at the repo root. It declares:
+
+- **`mpi-db`** — managed PostgreSQL (free tier); `DATABASE_URL` is injected automatically into the backend
+- **`mpi-backend`** — Python web service; runs `uvicorn main:app`
+- **`mpi-frontend`** — static site; runs `npm ci && npm run build`, serves `dist/`
+
+### First-time setup on Render
+
+1. Go to [render.com](https://render.com) → **New → Blueprint** → connect your GitHub repo
+2. Render reads `render.yaml` and creates all three resources automatically
+3. After the backend is deployed, copy its public URL and set these env vars in the Render dashboard:
+   - **Backend** → `ALLOWED_ORIGINS` = `https://your-frontend.onrender.com`
+   - **Frontend** → `VITE_API_URL` = `https://your-backend.onrender.com`
+4. Trigger a manual redeploy of both services for the env vars to take effect
+5. Update the Live URLs table above with the final public URLs
+
+### Environment variables in production
+
+| Service  | Variable          | Where to set     | Value                             |
+| -------- | ----------------- | ---------------- | --------------------------------- |
+| Backend  | `DATABASE_URL`    | Auto-injected    | Render Postgres connection string |
+| Backend  | `ALLOWED_ORIGINS` | Render dashboard | Frontend public URL               |
+| Frontend | `VITE_API_URL`    | Render dashboard | Backend public URL                |

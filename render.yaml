@@ -1,0 +1,30 @@
+databases:
+  - name: mpi-db
+    databaseName: mpi_db
+    user: mpi_user
+    plan: free
+
+services:
+  - type: web
+    name: mpi-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mpi-db
+          property: connectionString
+      - key: ALLOWED_ORIGINS
+        sync: false # set manually in Render dashboard after frontend is deployed
+
+  - type: static
+    name: mpi-frontend
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false # set manually in Render dashboard after backend is deployed
