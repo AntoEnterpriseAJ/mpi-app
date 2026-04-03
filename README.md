@@ -612,10 +612,10 @@ The application is deployed on [Render](https://render.com) and redeployed autom
 
 ### Live URLs
 
-| Service  | URL                      |
-| -------- | ------------------------ |
-| Frontend | _add after first deploy_ |
-| Backend  | _add after first deploy_ |
+| Service  | URL                               |
+| -------- | --------------------------------- |
+| Frontend | https://mpi-frontend.onrender.com |
+| Backend  | https://mpi-backend.onrender.com  |
 
 ### How it works
 
