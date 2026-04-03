@@ -18,7 +18,7 @@ services:
           name: mpi-db
           property: connectionString
       - key: ALLOWED_ORIGINS
-        sync: false # set manually in Render dashboard after frontend is deployed
+        value: https://mpi-frontend.onrender.com
 
   - type: web
     name: mpi-frontend
@@ -28,4 +28,4 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        sync: false # set manually in Render dashboard after backend is deployed
+        value: https://mpi-backend.onrender.com

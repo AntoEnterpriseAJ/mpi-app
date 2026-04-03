@@ -640,9 +640,9 @@ Deployment is defined in `render.yaml` at the repo root. It declares:
 
 1. Go to [render.com](https://render.com) → **New → Blueprint** → connect your GitHub repo
 2. Render reads `render.yaml` and creates all three resources automatically
-3. After the backend is deployed, copy its public URL and set these env vars in the Render dashboard:
-   - **Backend** → `ALLOWED_ORIGINS` = `https://your-frontend.onrender.com`
-   - **Frontend** → `VITE_API_URL` = `https://your-backend.onrender.com`
+3. After the backend and frontend are deployed, copy both public URLs and set these env vars in the Render dashboard:
+   - **Backend** → `ALLOWED_ORIGINS` = `https://your-frontend.onrender.com` (use the **frontend** public URL here)
+   - **Frontend** → `VITE_API_URL` = `https://your-backend.onrender.com` (use the **backend** public URL here)
 4. Trigger a manual redeploy of both services for the env vars to take effect
 5. Update the Live URLs table above with the final public URLs
 
