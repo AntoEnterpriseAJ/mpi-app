@@ -603,3 +603,53 @@ npm run build
 ```
 
 All four commands must exit with code 0 for CI to pass.
+
+---
+
+## 10. Cloud Deployment (CD)
+
+The application is deployed on [Render](https://render.com) and redeployed automatically whenever changes are merged into `main`.
+
+### Live URLs
+
+| Service  | URL                               |
+| -------- | --------------------------------- |
+| Frontend | https://mpi-frontend.onrender.com |
+| Backend  | https://mpi-backend.onrender.com  |
+
+### How it works
+
+```
+merge to main
+    → Render detects new commit on main
+    → backend service redeploys (pip install + uvicorn)
+    → frontend static site rebuilds (npm ci + vite build)
+```
+
+No GitHub Actions step is needed for deployment — Render pulls directly from the linked GitHub repo.
+
+### Infrastructure as Code
+
+Deployment is defined in `render.yaml` at the repo root. It declares:
+
+- **`mpi-db`** — managed PostgreSQL (free tier); `DATABASE_URL` is injected automatically into the backend
+- **`mpi-backend`** — Python web service; runs `uvicorn main:app`
+- **`mpi-frontend`** — static site; runs `npm ci && npm run build`, serves `dist/`
+
+### First-time setup on Render
+
+1. Go to [render.com](https://render.com) → **New → Blueprint** → connect your GitHub repo
+2. Render reads `render.yaml` and creates all three resources automatically — `ALLOWED_ORIGINS` and `VITE_API_URL` are pre-configured with the default service URLs
+3. Only update these env vars in the Render dashboard if you use custom domains or different service names:
+   - **Backend** → `ALLOWED_ORIGINS` = `https://your-frontend.onrender.com` (use the **frontend** public URL here)
+   - **Frontend** → `VITE_API_URL` = `https://your-backend.onrender.com` (use the **backend** public URL here)
+4. If you changed either env var in the dashboard, trigger a manual redeploy of the affected service for the new value to take effect
+5. Update the Live URLs table above with the final public URLs
+
+### Environment variables in production
+
+| Service  | Variable          | Where to set                                             | Value                             |
+| -------- | ----------------- | -------------------------------------------------------- | --------------------------------- |
+| Backend  | `DATABASE_URL`    | Auto-injected                                            | Render Postgres connection string |
+| Backend  | `ALLOWED_ORIGINS` | `render.yaml` by default; dashboard only when overriding | Frontend public URL               |
+| Frontend | `VITE_API_URL`    | `render.yaml` by default; dashboard only when overriding | Backend public URL                |
