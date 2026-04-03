@@ -565,3 +565,41 @@ docker compose down -v
 
 > **Hot-Reload:** Any changes to files in `backend/` or `frontend/src/` are immediately reflected inside the running containers — no rebuild required.
 > The frontend Vite dev server proxies API calls to the backend through the Docker internal network (`http://api:8000`), so no host-level CORS configuration is needed.
+
+---
+
+## 9. Continuous Integration (CI)
+
+Every push to any branch and every pull request targeting `main` automatically triggers a GitHub Actions pipeline defined in `.github/workflows/ci.yml`.
+
+### Jobs
+
+| Job          | Runner                       | Steps                                                        |
+| ------------ | ---------------------------- | ------------------------------------------------------------ |
+| **Backend**  | `ubuntu-latest`, Python 3.12 | Install deps → `ruff check backend` → `pytest backend/tests` |
+| **Frontend** | `ubuntu-latest`, Node 22     | `npm ci` → `npm run lint` → `npm run build`                  |
+
+Both jobs run in parallel. If either fails, the overall CI run is marked as failed.
+
+### Branch protection
+
+The `main` branch is protected. GitHub will block a merge if either CI job fails. You cannot bypass this by pushing directly to `main`.
+
+### Running the same checks locally
+
+Before pushing, you can reproduce exactly what CI runs:
+
+```bash
+# From the repo root (with the backend venv active):
+
+# Backend
+ruff check backend
+pytest backend/tests
+
+# Frontend (from frontend/)
+cd frontend
+npm run lint
+npm run build
+```
+
+All four commands must exit with code 0 for CI to pass.
