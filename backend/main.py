@@ -5,7 +5,7 @@ import models
 from database import SessionLocal, engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import users
+from routers import leave, users
 from sqlalchemy.orm import Session
 
 models.Base.metadata.create_all(bind=engine)
@@ -45,3 +45,4 @@ def get_db() -> Generator[Session, None, None]:
 
 
 app.include_router(users.router)
+app.include_router(leave.router)
