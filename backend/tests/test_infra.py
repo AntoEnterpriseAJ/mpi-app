@@ -62,7 +62,7 @@ def test_schema_generation_users_table(db_inspector: Inspector) -> None:
     assert "users" in tables, "Table 'users' was not created by SQLAlchemy"
     # Check columns
     columns = {col["name"]: col for col in db_inspector.get_columns("users")}
-    expected_columns = ["id", "name", "role", "position", "seniority"]
+    expected_columns = ["id", "name", "role", "position", "seniority", "hire_date"]
     for col_name in expected_columns:
         assert col_name in columns, f"Column {col_name} is missing from 'users' table"
     # Validate primary key and coarse type expectations
@@ -74,3 +74,29 @@ def test_schema_generation_users_table(db_inspector: Inspector) -> None:
         assert ("char" in col_type) or ("text" in col_type), (
             f"'{col_name}' must be String-like"
         )
+
+
+def test_schema_generation_leave_requests_table(db_inspector: Inspector) -> None:
+    """Verify 'leave_requests' table exists with core leave management columns."""
+    tables = db_inspector.get_table_names()
+    assert "leave_requests" in tables, "Table 'leave_requests' is missing"
+
+    columns = {col["name"]: col for col in db_inspector.get_columns("leave_requests")}
+    expected_columns = [
+        "id",
+        "user_id",
+        "start_date",
+        "end_date",
+        "days_requested",
+        "status",
+        "created_at",
+    ]
+    for col_name in expected_columns:
+        assert col_name in columns, (
+            f"Column {col_name} is missing from 'leave_requests'"
+        )
+
+    pk = db_inspector.get_pk_constraint("leave_requests")
+    assert pk.get("constrained_columns") == ["id"], (
+        "Primary key for 'leave_requests' must be 'id'"
+    )

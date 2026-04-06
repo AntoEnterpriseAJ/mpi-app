@@ -100,6 +100,20 @@ ALTER DATABASE mpi_db OWNER TO postgres;
 \q
 ```
 
+### Step 2.1: Database Reset & Seeding
+
+Whenever the database schema changes (e.g., new columns or tables are added), or if you simply want to start fresh with clean data, you can run the database reset script.
+
+This script will drop all existing tables, recreate them to match the latest `models.py`, and populate the database with mock users.
+
+Ensure your backend virtual environment is active and run:
+```bash
+cd backend
+python reset_db.py
+```
+
+Note: This will permanently delete all existing data in your local database.
+
 ### Step 3: Backend Setup & Running the Server
 
 Once your database is up and running, open a new terminal window and follow these OS-specific steps to start the API.
