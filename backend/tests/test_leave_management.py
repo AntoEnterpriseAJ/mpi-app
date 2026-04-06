@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import os
 import uuid
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 import models
 import pytest
 from database import SessionLocal
+
+
+def _today_utc_date() -> date:
+    """Return today's date using a timezone-aware datetime source."""
+    return datetime.now(timezone.utc).date()
 
 
 @pytest.fixture(scope="session")
@@ -69,12 +74,12 @@ def test_leave_endpoints_are_registered(client: object) -> None:
 
 def test_create_leave_request_rejects_invalid_date_range(client: object) -> None:
     """Verify validation rejects payload where end_date is before start_date."""
-    user_id = _create_user_with_hire_date(date.today() - timedelta(days=365))
+    user_id = _create_user_with_hire_date(_today_utc_date() - timedelta(days=365))
     try:
         payload = {
             "user_id": user_id,
-            "start_date": (date.today() + timedelta(days=10)).isoformat(),
-            "end_date": (date.today() + timedelta(days=9)).isoformat(),
+            "start_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
+            "end_date": (_today_utc_date() + timedelta(days=9)).isoformat(),
         }
         response = client.post("/leave/request", json=payload)
         assert response.status_code == 422
@@ -86,8 +91,8 @@ def test_create_leave_request_rejects_unknown_user(client: object) -> None:
     """Verify create request returns 404 when user does not exist."""
     payload = {
         "user_id": 999_999_999,
-        "start_date": (date.today() + timedelta(days=10)).isoformat(),
-        "end_date": (date.today() + timedelta(days=10)).isoformat(),
+        "start_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
+        "end_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
     }
     response = client.post("/leave/request", json=payload)
     assert response.status_code == 404
@@ -97,12 +102,12 @@ def test_create_leave_request_rejects_unknown_user(client: object) -> None:
 def test_create_leave_request_rejects_when_balance_exceeded(client: object) -> None:
     """Verify entitlement logic rejects a request when available balance is insufficient."""
     # Same-month hire date means earned days = 0 under current monthly accrual rule.
-    user_id = _create_user_with_hire_date(date.today())
+    user_id = _create_user_with_hire_date(_today_utc_date())
     try:
         payload = {
             "user_id": user_id,
-            "start_date": (date.today() + timedelta(days=14)).isoformat(),
-            "end_date": (date.today() + timedelta(days=14)).isoformat(),
+            "start_date": (_today_utc_date() + timedelta(days=14)).isoformat(),
+            "end_date": (_today_utc_date() + timedelta(days=14)).isoformat(),
         }
         response = client.post("/leave/request", json=payload)
         assert response.status_code == 400
@@ -114,17 +119,17 @@ def test_create_leave_request_rejects_when_balance_exceeded(client: object) -> N
 def test_create_leave_request_consumes_balance_for_future_requests(client: object) -> None:
     """Verify previously created non-rejected requests reduce remaining available balance."""
     # One month worked => 1.5 earned days, so only one 1-day request should succeed.
-    user_id = _create_user_with_hire_date(date.today() - timedelta(days=31))
+    user_id = _create_user_with_hire_date(_today_utc_date() - timedelta(days=31))
     try:
         first_payload = {
             "user_id": user_id,
-            "start_date": (date.today() + timedelta(days=20)).isoformat(),
-            "end_date": (date.today() + timedelta(days=20)).isoformat(),
+            "start_date": (_today_utc_date() + timedelta(days=20)).isoformat(),
+            "end_date": (_today_utc_date() + timedelta(days=20)).isoformat(),
         }
         second_payload = {
             "user_id": user_id,
-            "start_date": (date.today() + timedelta(days=21)).isoformat(),
-            "end_date": (date.today() + timedelta(days=21)).isoformat(),
+            "start_date": (_today_utc_date() + timedelta(days=21)).isoformat(),
+            "end_date": (_today_utc_date() + timedelta(days=21)).isoformat(),
         }
 
         first_response = client.post("/leave/request", json=first_payload)
@@ -139,17 +144,17 @@ def test_create_leave_request_consumes_balance_for_future_requests(client: objec
 
 def test_get_leave_history_is_newest_first(client: object) -> None:
     """Verify user leave history endpoint returns leave requests ordered newest first."""
-    user_id = _create_user_with_hire_date(date.today() - timedelta(days=730))
+    user_id = _create_user_with_hire_date(_today_utc_date() - timedelta(days=730))
     try:
         first_payload = {
             "user_id": user_id,
-            "start_date": (date.today() + timedelta(days=30)).isoformat(),
-            "end_date": (date.today() + timedelta(days=30)).isoformat(),
+            "start_date": (_today_utc_date() + timedelta(days=30)).isoformat(),
+            "end_date": (_today_utc_date() + timedelta(days=30)).isoformat(),
         }
         second_payload = {
             "user_id": user_id,
-            "start_date": (date.today() + timedelta(days=40)).isoformat(),
-            "end_date": (date.today() + timedelta(days=41)).isoformat(),
+            "start_date": (_today_utc_date() + timedelta(days=40)).isoformat(),
+            "end_date": (_today_utc_date() + timedelta(days=41)).isoformat(),
         }
 
         first_response = client.post("/leave/request", json=first_payload)
