@@ -92,7 +92,9 @@ def test_schema_generation_leave_requests_table(db_inspector: Inspector) -> None
         "created_at",
     ]
     for col_name in expected_columns:
-        assert col_name in columns, f"Column {col_name} is missing from 'leave_requests'"
+        assert col_name in columns, (
+            f"Column {col_name} is missing from 'leave_requests'"
+        )
 
     pk = db_inspector.get_pk_constraint("leave_requests")
     assert pk.get("constrained_columns") == ["id"], (

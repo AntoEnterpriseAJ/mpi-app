@@ -116,7 +116,9 @@ def test_create_leave_request_rejects_when_balance_exceeded(client: object) -> N
         _cleanup_user_data(user_id)
 
 
-def test_create_leave_request_consumes_balance_for_future_requests(client: object) -> None:
+def test_create_leave_request_consumes_balance_for_future_requests(
+    client: object,
+) -> None:
     """Verify previously created non-rejected requests reduce remaining available balance."""
     # One month worked => 1.5 earned days, so only one 1-day request should succeed.
     user_id = _create_user_with_hire_date(_today_utc_date() - timedelta(days=31))
