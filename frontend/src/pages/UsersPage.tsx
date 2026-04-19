@@ -43,9 +43,14 @@ export function UsersPage() {
       />
 
       <section className="card card-toolbar">
-        <Link className="inline-link" to="/">
-          Back to Home
-        </Link>
+        <div className="toolbar-links">
+          <Link className="inline-link" to="/">
+            Back to Home
+          </Link>
+          <Link className="inline-link" to="/leave">
+            Open Leave Management
+          </Link>
+        </div>
 
         <button
           className="btn btn-secondary"

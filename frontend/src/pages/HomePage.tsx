@@ -59,6 +59,10 @@ export function HomePage() {
           <Link className="btn btn-secondary" to="/users">
             Open Users Directory
           </Link>
+
+          <Link className="btn btn-secondary" to="/leave">
+            Open Leave Management
+          </Link>
         </div>
 
         {health && (
