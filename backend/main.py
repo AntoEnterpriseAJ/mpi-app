@@ -17,18 +17,27 @@ app = FastAPI(
 )
 
 _allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
-_allowed_origins_raw = (
-    _allowed_origins_env
-    if _allowed_origins_env and _allowed_origins_env.strip()
-    else "http://localhost:5173,http://127.0.0.1:5173"
-)
-_allowed_origins = [
-    o.strip() for o in _allowed_origins_raw.split(",") if o.strip() and o.strip() != "*"
-]
+
+
+def _parse_allowed_origins(raw_origins: str | None) -> list[str]:
+    default_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    if not raw_origins or not raw_origins.strip():
+        return default_origins
+
+    parsed_origins = [
+        origin.strip()
+        for origin in raw_origins.split(",")
+        if origin.strip() and origin.strip() != "*"
+    ]
+    return parsed_origins or default_origins
+
+
+_allowed_origins = _parse_allowed_origins(_allowed_origins_env)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
