@@ -2,6 +2,7 @@ import os
 from collections.abc import Generator
 
 import models
+from bootstrap import ensure_schema_compatibility, seed_default_users_if_empty
 from database import SessionLocal, engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +10,8 @@ from routers import leave, users
 from sqlalchemy.orm import Session
 
 models.Base.metadata.create_all(bind=engine)
+ensure_schema_compatibility()
+seed_default_users_if_empty()
 
 app = FastAPI(
     title="API for Leave Management System",

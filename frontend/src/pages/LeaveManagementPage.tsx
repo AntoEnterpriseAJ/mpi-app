@@ -233,9 +233,9 @@ export function LeaveManagementPage() {
 
       if (historyUserId !== formState.userId) {
         setHistoryUserId(formState.userId);
+      } else {
+        await loadHistory(formState.userId);
       }
-
-      await loadHistory(formState.userId);
     } catch (requestError) {
       if (requestError instanceof ApiError && requestError.status === 400) {
         setFormError(

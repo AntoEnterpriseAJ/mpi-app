@@ -1,24 +1,22 @@
+from collections.abc import Generator
+
+import models
 import schemas
-from fastapi import APIRouter, HTTPException
+from database import SessionLocal
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["Users"])
 
-MOCK_USERS = [
-    {
-        "id": 1,
-        "name": "Ion Popescu",
-        "role": "User",
-        "position": "Backend Developer",
-        "seniority": "Mid",
-    },
-    {
-        "id": 2,
-        "name": "Maria Ionescu",
-        "role": "Manager",
-        "position": "Engineering Manager",
-        "seniority": "Senior",
-    },
-]
+
+def get_db() -> Generator[Session, None, None]:
+    """Yield a database session and ensure it is closed after use."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @router.get("/health", status_code=200)
@@ -32,20 +30,24 @@ async def health_check() -> dict[str, str]:
 
 
 @router.get("/users", response_model=list[schemas.UserResponse])
-async def get_users() -> list[dict]:
+async def get_users(db: Session = Depends(get_db)) -> list[models.User]:
     """Return the list of all users.
 
     Returns:
-        A list of user dictionaries serialised via UserResponse.
+        A list of users serialised via UserResponse.
 
     Raises:
         HTTPException: 404 if no users exist.
-        HTTPException: 500 if an unexpected error occurs.
+        HTTPException: 500 if a database error occurs.
     """
-    if not MOCK_USERS:
-        raise HTTPException(status_code=404, detail="No users found")
     try:
-        return MOCK_USERS
-    except Exception as err:
-        # Return a generic 500 error without exposing internal exception details
-        raise HTTPException(status_code=500, detail="Internal server error") from err
+        users = db.query(models.User).order_by(models.User.id.asc()).all()
+    except SQLAlchemyError as err:
+        raise HTTPException(
+            status_code=500, detail="Could not load users from database."
+        ) from err
+
+    if not users:
+        raise HTTPException(status_code=404, detail="No users found")
+
+    return users
