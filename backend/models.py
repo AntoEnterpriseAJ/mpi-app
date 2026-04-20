@@ -28,13 +28,19 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
     name = Column(String, nullable=False)
     role = Column(String, nullable=False, default=RoleEnum.user.value)
     position = Column(String, nullable=False)
     seniority = Column(String, nullable=False)
     hire_date = Column(Date, nullable=False, default=date.today)
 
-    leave_requests = relationship("LeaveRequest", back_populates="user")
+    leave_requests = relationship(
+        "LeaveRequest", foreign_keys="[LeaveRequest.user_id]", back_populates="user"
+    )
 
 
 class LeaveRequest(Base):
@@ -50,4 +56,9 @@ class LeaveRequest(Base):
     status = Column(SQLEnum(LeaveStatusEnum), default=LeaveStatusEnum.PENDING)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    user = relationship("User", back_populates="leave_requests")
+    reviewed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    rejection_reason = Column(String, nullable=True)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="leave_requests")
+    reviewer = relationship("User", foreign_keys=[reviewed_by])
