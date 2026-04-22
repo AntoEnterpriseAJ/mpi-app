@@ -55,7 +55,7 @@ def create_leave_request(
     )
     if overlapping_request:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_409_CONFLICT,
             detail=f"Requested dates overlap with an existing request (ID: {overlapping_request.id})",
         )
 
