@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 
 class LeaveStatus(str, Enum):
@@ -46,8 +46,8 @@ class LeaveRequestResponse(BaseModel):
 class UserCreate(BaseModel):
     """Schema for registering a new user."""
 
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=72)
     name: str
     position: str
     seniority: str
