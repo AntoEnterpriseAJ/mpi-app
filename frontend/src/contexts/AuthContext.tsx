@@ -10,6 +10,7 @@ import {
   type PropsWithChildren,
 } from 'react';
 import {
+  ApiError,
   getCurrentUser,
   loginUser,
   registerUser,
@@ -48,6 +49,10 @@ function hasManagerRole(user: UserProfile | null): boolean {
   return user?.role.toLowerCase() === 'manager';
 }
 
+function isUnauthorizedApiError(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 401;
+}
+
 export function AuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<AuthStatus>(() =>
     getStoredAuthToken() ? 'loading' : 'unauthorized',
@@ -57,6 +62,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const clearSession = useCallback(() => {
     clearStoredAuthToken();
     setAuthToken(null);
+    setUser(null);
+    setStatus('unauthorized');
+  }, []);
+
+  const setUnauthorizedState = useCallback(() => {
     setUser(null);
     setStatus('unauthorized');
   }, []);
@@ -75,10 +85,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const profile = await getCurrentUser();
       setUser(profile);
       setStatus('authenticated');
-    } catch {
-      clearSession();
+    } catch (error) {
+      if (isUnauthorizedApiError(error)) {
+        clearSession();
+        return;
+      }
+
+      // Keep persisted token for transient backend/network failures.
+      setUnauthorizedState();
     }
-  }, [clearSession]);
+  }, [clearSession, setUnauthorizedState]);
 
   useEffect(() => {
     const existingToken = getStoredAuthToken();
@@ -100,21 +116,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setUser(profile);
         setStatus('authenticated');
       })
-      .catch(() => {
+      .catch((error) => {
         if (!isActive) {
           return;
         }
 
-        clearStoredAuthToken();
-        setAuthToken(null);
-        setUser(null);
-        setStatus('unauthorized');
+        if (isUnauthorizedApiError(error)) {
+          clearSession();
+          return;
+        }
+
+        // Keep persisted token for transient backend/network failures.
+        setUnauthorizedState();
       });
 
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [clearSession, setUnauthorizedState]);
 
   useEffect(() => {
     const handleUnauthorized = () => {
@@ -139,11 +158,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setStatus('authenticated');
         return profile;
       } catch (error) {
-        clearSession();
+        if (isUnauthorizedApiError(error)) {
+          clearSession();
+        } else {
+          setUnauthorizedState();
+        }
         throw error;
       }
     },
-    [clearSession],
+    [clearSession, setUnauthorizedState],
   );
 
   const register = useCallback(async (payload: RegisterPayload) => {

@@ -2,11 +2,13 @@ export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,72}$/;
 
 export function validateEmail(email: string): string | null {
-  if (!email.trim()) {
+  const normalizedEmail = email.trim();
+
+  if (!normalizedEmail) {
     return 'Email is required.';
   }
 
-  if (!EMAIL_PATTERN.test(email)) {
+  if (!EMAIL_PATTERN.test(normalizedEmail)) {
     return 'Enter a valid email address.';
   }
 

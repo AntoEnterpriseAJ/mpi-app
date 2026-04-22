@@ -93,7 +93,8 @@ function isRecordBody(
     body instanceof FormData ||
     body instanceof URLSearchParams ||
     body instanceof ReadableStream ||
-    body instanceof ArrayBuffer
+    body instanceof ArrayBuffer ||
+    ArrayBuffer.isView(body)
   ) {
     return false;
   }
@@ -102,22 +103,33 @@ function isRecordBody(
 }
 
 async function parseApiError(response: Response): Promise<ApiError> {
+  const contentType = (
+    response.headers.get('Content-Type') ?? ''
+  ).toLowerCase();
   let detail: string | undefined;
 
   try {
-    const errorPayload = (await response.json()) as ApiErrorPayload;
-    if (typeof errorPayload.detail === 'string') {
-      detail = errorPayload.detail;
-    } else if (typeof errorPayload.message === 'string') {
-      detail = errorPayload.message;
+    const responseBody = await response.text();
+    if (responseBody) {
+      if (contentType.includes('application/json')) {
+        try {
+          const errorPayload = JSON.parse(responseBody) as ApiErrorPayload;
+          if (typeof errorPayload.detail === 'string') {
+            detail = errorPayload.detail;
+          } else if (typeof errorPayload.message === 'string') {
+            detail = errorPayload.message;
+          } else {
+            detail = responseBody;
+          }
+        } catch {
+          detail = responseBody;
+        }
+      } else {
+        detail = responseBody;
+      }
     }
   } catch {
-    try {
-      const text = await response.text();
-      detail = text || undefined;
-    } catch {
-      detail = undefined;
-    }
+    detail = undefined;
   }
 
   return new ApiError(response.status, detail);

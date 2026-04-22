@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { getApiErrorMessage } from '../services/api';
-import { validateEmail, validatePassword } from '../utils/validation';
+import { validateEmail } from '../utils/validation';
 
 type LoginFormState = {
   email: string;
@@ -47,9 +47,8 @@ export function LoginPage() {
       return;
     }
 
-    const passwordError = validatePassword(formState.password);
-    if (passwordError) {
-      setFormError(passwordError);
+    if (!formState.password) {
+      setFormError('Password is required.');
       return;
     }
 

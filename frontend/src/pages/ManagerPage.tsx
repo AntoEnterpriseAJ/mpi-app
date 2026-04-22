@@ -9,34 +9,7 @@ import {
   rejectLeaveRequest,
   type LeaveRequest,
 } from '../services/api';
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-  }).format(date);
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
-}
+import { formatDisplayDate, formatDisplayDateTime } from '../utils/date';
 
 export function ManagerPage() {
   const { showToast } = useToast();
@@ -216,13 +189,13 @@ export function ManagerPage() {
                     <tr key={request.id}>
                       <td>{request.id}</td>
                       <td>#{request.user_id}</td>
-                      <td>{formatDate(request.start_date)}</td>
-                      <td>{formatDate(request.end_date)}</td>
+                      <td>{formatDisplayDate(request.start_date)}</td>
+                      <td>{formatDisplayDate(request.end_date)}</td>
                       <td>{request.days_requested}</td>
                       <td>
                         <StatusBadge status={request.status} />
                       </td>
-                      <td>{formatDateTime(request.created_at)}</td>
+                      <td>{formatDisplayDateTime(request.created_at)}</td>
                       <td>
                         <input
                           className="table-input"

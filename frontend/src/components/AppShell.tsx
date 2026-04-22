@@ -22,12 +22,16 @@ export function AppShell() {
         </div>
 
         <nav className="app-nav" aria-label="Main navigation">
-          <NavLink
-            to="/leave"
-            className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-          >
-            My Leave
-          </NavLink>
+          {!isManager ? (
+            <NavLink
+              to="/leave"
+              className={({ isActive }) =>
+                `nav-link${isActive ? ' active' : ''}`
+              }
+            >
+              My Leave
+            </NavLink>
+          ) : null}
           {isManager ? (
             <NavLink
               to="/manager"

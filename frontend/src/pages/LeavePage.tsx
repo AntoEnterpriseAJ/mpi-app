@@ -15,6 +15,7 @@ import {
   getMyLeaveRequests,
   type LeaveRequest,
 } from '../services/api';
+import { formatDisplayDate, formatDisplayDateTime } from '../utils/date';
 
 type LeaveFormState = {
   startDate: string;
@@ -25,34 +26,6 @@ const INITIAL_FORM_STATE: LeaveFormState = {
   startDate: '',
   endDate: '',
 };
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-  }).format(date);
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
-}
 
 export function LeavePage() {
   const { user } = useAuth();
@@ -294,13 +267,13 @@ export function LeavePage() {
                   {history.map((request) => (
                     <tr key={request.id}>
                       <td>{request.id}</td>
-                      <td>{formatDate(request.start_date)}</td>
-                      <td>{formatDate(request.end_date)}</td>
+                      <td>{formatDisplayDate(request.start_date)}</td>
+                      <td>{formatDisplayDate(request.end_date)}</td>
                       <td>{request.days_requested}</td>
                       <td>
                         <StatusBadge status={request.status} />
                       </td>
-                      <td>{formatDateTime(request.created_at)}</td>
+                      <td>{formatDisplayDateTime(request.created_at)}</td>
                       <td>{request.rejection_reason ?? '-'}</td>
                     </tr>
                   ))}
