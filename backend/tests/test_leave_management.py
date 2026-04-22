@@ -1,10 +1,11 @@
+# backend/tests/test_leave_management.py
 from __future__ import annotations
 
-import hashlib
 import os
 import uuid
 from datetime import date, datetime, timedelta, timezone
 
+import bcrypt
 import models
 import pytest
 from database import SessionLocal
@@ -49,6 +50,14 @@ def client() -> object:
     return client
 
 
+def _get_password_hash(password: str) -> str:
+    """Generate a bcrypt hash for a password."""
+    pwd_bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed_password.decode("utf-8")
+
+
 def _create_user_with_hire_date(hire_date: date) -> tuple[int, str]:
     """Create a unique user record for test scenarios and return (user_id, password)."""
     db = SessionLocal()
@@ -56,7 +65,7 @@ def _create_user_with_hire_date(hire_date: date) -> tuple[int, str]:
         unique_suffix = uuid.uuid4().hex[:8]
         email = f"qa.user.{unique_suffix}@example.com"
         password = f"password_{unique_suffix}"
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        password_hash = _get_password_hash(password)
 
         user = models.User(
             email=email,
