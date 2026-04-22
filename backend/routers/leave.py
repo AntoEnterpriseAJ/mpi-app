@@ -146,6 +146,7 @@ def approve_leave_request(
     leave_req = (
         db.query(models.LeaveRequest)
         .filter(models.LeaveRequest.id == request_id)
+        .with_for_update()
         .first()
     )
 
@@ -184,6 +185,7 @@ def reject_leave_request(
     leave_req = (
         db.query(models.LeaveRequest)
         .filter(models.LeaveRequest.id == request_id)
+        .with_for_update()
         .first()
     )
 
