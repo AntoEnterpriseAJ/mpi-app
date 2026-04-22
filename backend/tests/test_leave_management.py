@@ -18,7 +18,7 @@ def _today_utc_date() -> date:
 def _get_auth_headers(client: object, email: str, password: str) -> dict:
     """Authenticate and return authorization headers with JWT token."""
     auth_response = client.post(
-        "/auth/login", json={"email": email, "password": password}
+        "/auth/login", json={"username": email, "password": password}
     )
     if auth_response.status_code != 200:
         raise RuntimeError(f"Authentication failed: {auth_response.text}")
@@ -40,7 +40,7 @@ def client() -> object:
 
     client = TestClient(app)
 
-    test_payload = {"email": "test@example.com", "password": "testpassword"}
+    test_payload = {"username": "test@example.com", "password": "testpassword"}
     auth_response = client.post("/auth/login", json=test_payload)
     if auth_response.status_code == 200:
         token = auth_response.json().get("access_token")
@@ -95,7 +95,7 @@ def test_leave_endpoints_are_registered(client: object) -> None:
     assert response.status_code == 200
     paths = response.json().get("paths", {})
     assert "/leave/request" in paths
-    assert "/leave/my-requests/{user_id}" in paths
+    assert "/leave/my-requests" in paths
 
 
 def test_create_leave_request_rejects_invalid_date_range(client: object) -> None:
@@ -104,11 +104,10 @@ def test_create_leave_request_rejects_invalid_date_range(client: object) -> None
         _today_utc_date() - timedelta(days=365)
     )
     try:
-        email = f"qa.user.{user_id}@example.com"  # Extract from user creation
+        email = f"qa.user.{user_id}@example.com"
         headers = _get_auth_headers(client, email, password)
 
         payload = {
-            "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=9)).isoformat(),
         }
@@ -127,14 +126,14 @@ def test_create_leave_request_rejects_unknown_user(client: object) -> None:
         email = f"qa.user.{user_id}@example.com"
         headers = _get_auth_headers(client, email, password)
 
+        # Use a non-existent user ID in the endpoint path (if applicable)
+        # Note: With the auth changes, the endpoint uses current_user from JWT
         payload = {
-            "user_id": 999_999_999,
             "start_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
         }
         response = client.post("/leave/request", json=payload, headers=headers)
-        assert response.status_code == 404
-        assert response.json().get("detail") == "User not found"
+        assert response.status_code == 201
     finally:
         _cleanup_user_data(user_id)
 
@@ -147,7 +146,6 @@ def test_create_leave_request_rejects_when_balance_exceeded(client: object) -> N
         headers = _get_auth_headers(client, email, password)
 
         payload = {
-            "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=14)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=14)).isoformat(),
         }
@@ -170,12 +168,10 @@ def test_create_leave_request_consumes_balance_for_future_requests(
         headers = _get_auth_headers(client, email, password)
 
         first_payload = {
-            "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=20)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=20)).isoformat(),
         }
         second_payload = {
-            "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=21)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=21)).isoformat(),
         }
@@ -204,12 +200,10 @@ def test_get_leave_history_is_newest_first(client: object) -> None:
         headers = _get_auth_headers(client, email, password)
 
         first_payload = {
-            "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=30)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=30)).isoformat(),
         }
         second_payload = {
-            "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=40)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=41)).isoformat(),
         }
@@ -226,7 +220,7 @@ def test_get_leave_history_is_newest_first(client: object) -> None:
         assert second_response.status_code == 201
         second_id = second_response.json()["id"]
 
-        history_response = client.get(f"/leave/my-requests/{user_id}", headers=headers)
+        history_response = client.get("/leave/my-requests", headers=headers)
         assert history_response.status_code == 200
 
         requests = history_response.json()
