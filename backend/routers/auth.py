@@ -1,3 +1,4 @@
+# backend/routers/auth.py
 import os
 from collections.abc import Generator
 from datetime import datetime, timedelta, timezone
@@ -8,7 +9,8 @@ import models
 import schemas
 from database import SessionLocal
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -23,6 +25,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+class LoginRequest(BaseModel):
+    """Schema for login requests."""
+
+    username: str
+    password: str
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -87,13 +96,13 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)) -> models.
 
 
 @router.post("/login", response_model=schemas.Token)
-def login(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
-) -> dict[str, str]:
+def login(credentials: LoginRequest, db: Session = Depends(get_db)) -> dict[str, str]:
     """Autentifică utilizatorul și returnează un JWT Bearer Token."""
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
+    user = (
+        db.query(models.User).filter(models.User.email == credentials.username).first()
+    )
 
-    if not user or not verify_password(form_data.password, user.password_hash):
+    if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
