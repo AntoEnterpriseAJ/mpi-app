@@ -58,8 +58,8 @@ def _get_password_hash(password: str) -> str:
     return hashed_password.decode("utf-8")
 
 
-def _create_user_with_hire_date(hire_date: date) -> tuple[int, str]:
-    """Create a unique user record for test scenarios and return (user_id, password)."""
+def _create_user_with_hire_date(hire_date: date) -> tuple[int, str, str]:
+    """Create a unique user record for test scenarios and return (user_id, email, password)."""
     db = SessionLocal()
     try:
         unique_suffix = uuid.uuid4().hex[:8]
@@ -79,7 +79,7 @@ def _create_user_with_hire_date(hire_date: date) -> tuple[int, str]:
         db.add(user)
         db.commit()
         db.refresh(user)
-        return user.id, password
+        return user.id, email, password
     finally:
         db.close()
 
@@ -109,11 +109,10 @@ def test_leave_endpoints_are_registered(client: object) -> None:
 
 def test_create_leave_request_rejects_invalid_date_range(client: object) -> None:
     """Verify validation rejects payload where end_date is before start_date."""
-    user_id, password = _create_user_with_hire_date(
+    user_id, email, password = _create_user_with_hire_date(
         _today_utc_date() - timedelta(days=365)
     )
     try:
-        email = f"qa.user.{user_id}@example.com"
         headers = _get_auth_headers(client, email, password)
 
         payload = {
@@ -128,11 +127,10 @@ def test_create_leave_request_rejects_invalid_date_range(client: object) -> None
 
 def test_create_leave_request_rejects_unknown_user(client: object) -> None:
     """Verify create request returns 404 when user does not exist."""
-    user_id, password = _create_user_with_hire_date(
+    user_id, email, password = _create_user_with_hire_date(
         _today_utc_date() - timedelta(days=365)
     )
     try:
-        email = f"qa.user.{user_id}@example.com"
         headers = _get_auth_headers(client, email, password)
 
         # Use a non-existent user ID in the endpoint path (if applicable)
@@ -149,9 +147,8 @@ def test_create_leave_request_rejects_unknown_user(client: object) -> None:
 
 def test_create_leave_request_rejects_when_balance_exceeded(client: object) -> None:
     """Verify entitlement logic rejects a request when available balance is insufficient."""
-    user_id, password = _create_user_with_hire_date(_today_utc_date())
+    user_id, email, password = _create_user_with_hire_date(_today_utc_date())
     try:
-        email = f"qa.user.{user_id}@example.com"
         headers = _get_auth_headers(client, email, password)
 
         payload = {
@@ -169,11 +166,10 @@ def test_create_leave_request_consumes_balance_for_future_requests(
     client: object,
 ) -> None:
     """Verify previously created non-rejected requests reduce remaining available balance."""
-    user_id, password = _create_user_with_hire_date(
+    user_id, email, password = _create_user_with_hire_date(
         _today_utc_date() - timedelta(days=31)
     )
     try:
-        email = f"qa.user.{user_id}@example.com"
         headers = _get_auth_headers(client, email, password)
 
         first_payload = {
@@ -201,11 +197,10 @@ def test_create_leave_request_consumes_balance_for_future_requests(
 
 def test_get_leave_history_is_newest_first(client: object) -> None:
     """Verify user leave history endpoint returns leave requests ordered newest first."""
-    user_id, password = _create_user_with_hire_date(
+    user_id, email, password = _create_user_with_hire_date(
         _today_utc_date() - timedelta(days=730)
     )
     try:
-        email = f"qa.user.{user_id}@example.com"
         headers = _get_auth_headers(client, email, password)
 
         first_payload = {
