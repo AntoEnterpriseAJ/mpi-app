@@ -8,6 +8,8 @@ from database import SessionLocal, engine
 def get_password_hash(password: str) -> str:
     """Generează hash-ul pentru o parolă folosind direct librăria bcrypt."""
     pwd_bytes = password.encode("utf-8")
+    if len(pwd_bytes) > 72:
+        raise ValueError("Password exceeds 72 bytes after UTF-8 encoding")
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(pwd_bytes, salt)
     return hashed_password.decode("utf-8")
