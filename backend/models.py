@@ -22,14 +22,15 @@ class LeaveStatusEnum(str, enum.Enum):
     REJECTED = "REJECTED"
 
 
+# backend/models.py
 class User(Base):
     """Database model representing an employee/user in the system."""
 
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    password_hash = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=True)
+    password_hash = Column(String, nullable=True)
     created_at = Column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )

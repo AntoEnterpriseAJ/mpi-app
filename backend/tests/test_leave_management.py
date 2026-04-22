@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 import uuid
 from datetime import date, datetime, timedelta, timezone
@@ -34,7 +35,12 @@ def _create_user_with_hire_date(hire_date: date) -> int:
     db = SessionLocal()
     try:
         unique_suffix = uuid.uuid4().hex[:8]
+        email = f"qa.user.{unique_suffix}@example.com"
+        password_hash = hashlib.sha256(f"password_{unique_suffix}".encode()).hexdigest()
+
         user = models.User(
+            email=email,
+            password_hash=password_hash,
             name=f"QA User {unique_suffix}",
             role="User",
             position="QA Engineer",
