@@ -123,7 +123,12 @@ def get_current_user(
     except jwt.InvalidTokenError as err:
         raise credentials_exception from err
 
-    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
+    try:
+        user_id_int = int(user_id)
+    except (TypeError, ValueError) as err:
+        raise credentials_exception from err
+
+    user = db.query(models.User).filter(models.User.id == user_id_int).first()
     if user is None:
         raise credentials_exception
 
