@@ -15,6 +15,17 @@ def _today_utc_date() -> date:
     return datetime.now(timezone.utc).date()
 
 
+def _get_auth_headers(client: object, email: str, password: str) -> dict:
+    """Authenticate and return authorization headers with JWT token."""
+    auth_response = client.post(
+        "/auth/login", json={"email": email, "password": password}
+    )
+    if auth_response.status_code != 200:
+        raise RuntimeError(f"Authentication failed: {auth_response.text}")
+    token = auth_response.json().get("access_token")
+    return {"Authorization": f"Bearer {token}"}
+
+
 @pytest.fixture(scope="session")
 def client() -> object:
     """Provide a TestClient for leave management integration tests."""
@@ -27,16 +38,25 @@ def client() -> object:
     from fastapi.testclient import TestClient
     from main import app
 
-    return TestClient(app)
+    client = TestClient(app)
+
+    test_payload = {"email": "test@example.com", "password": "testpassword"}
+    auth_response = client.post("/auth/login", json=test_payload)
+    if auth_response.status_code == 200:
+        token = auth_response.json().get("access_token")
+        client.headers.update({"Authorization": f"Bearer {token}"})
+
+    return client
 
 
-def _create_user_with_hire_date(hire_date: date) -> int:
-    """Create a unique user record for test scenarios and return user id."""
+def _create_user_with_hire_date(hire_date: date) -> tuple[int, str]:
+    """Create a unique user record for test scenarios and return (user_id, password)."""
     db = SessionLocal()
     try:
         unique_suffix = uuid.uuid4().hex[:8]
         email = f"qa.user.{unique_suffix}@example.com"
-        password_hash = hashlib.sha256(f"password_{unique_suffix}".encode()).hexdigest()
+        password = f"password_{unique_suffix}"
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
 
         user = models.User(
             email=email,
@@ -50,7 +70,7 @@ def _create_user_with_hire_date(hire_date: date) -> int:
         db.add(user)
         db.commit()
         db.refresh(user)
-        return user.id
+        return user.id, password
     finally:
         db.close()
 
@@ -80,14 +100,19 @@ def test_leave_endpoints_are_registered(client: object) -> None:
 
 def test_create_leave_request_rejects_invalid_date_range(client: object) -> None:
     """Verify validation rejects payload where end_date is before start_date."""
-    user_id = _create_user_with_hire_date(_today_utc_date() - timedelta(days=365))
+    user_id, password = _create_user_with_hire_date(
+        _today_utc_date() - timedelta(days=365)
+    )
     try:
+        email = f"qa.user.{user_id}@example.com"  # Extract from user creation
+        headers = _get_auth_headers(client, email, password)
+
         payload = {
             "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=9)).isoformat(),
         }
-        response = client.post("/leave/request", json=payload)
+        response = client.post("/leave/request", json=payload, headers=headers)
         assert response.status_code == 422
     finally:
         _cleanup_user_data(user_id)
@@ -95,27 +120,38 @@ def test_create_leave_request_rejects_invalid_date_range(client: object) -> None
 
 def test_create_leave_request_rejects_unknown_user(client: object) -> None:
     """Verify create request returns 404 when user does not exist."""
-    payload = {
-        "user_id": 999_999_999,
-        "start_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
-        "end_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
-    }
-    response = client.post("/leave/request", json=payload)
-    assert response.status_code == 404
-    assert response.json().get("detail") == "User not found"
+    user_id, password = _create_user_with_hire_date(
+        _today_utc_date() - timedelta(days=365)
+    )
+    try:
+        email = f"qa.user.{user_id}@example.com"
+        headers = _get_auth_headers(client, email, password)
+
+        payload = {
+            "user_id": 999_999_999,
+            "start_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
+            "end_date": (_today_utc_date() + timedelta(days=10)).isoformat(),
+        }
+        response = client.post("/leave/request", json=payload, headers=headers)
+        assert response.status_code == 404
+        assert response.json().get("detail") == "User not found"
+    finally:
+        _cleanup_user_data(user_id)
 
 
 def test_create_leave_request_rejects_when_balance_exceeded(client: object) -> None:
     """Verify entitlement logic rejects a request when available balance is insufficient."""
-    # Same-month hire date means earned days = 0 under current monthly accrual rule.
-    user_id = _create_user_with_hire_date(_today_utc_date())
+    user_id, password = _create_user_with_hire_date(_today_utc_date())
     try:
+        email = f"qa.user.{user_id}@example.com"
+        headers = _get_auth_headers(client, email, password)
+
         payload = {
             "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=14)).isoformat(),
             "end_date": (_today_utc_date() + timedelta(days=14)).isoformat(),
         }
-        response = client.post("/leave/request", json=payload)
+        response = client.post("/leave/request", json=payload, headers=headers)
         assert response.status_code == 400
         assert "Not enough leave days" in response.json().get("detail", "")
     finally:
@@ -126,9 +162,13 @@ def test_create_leave_request_consumes_balance_for_future_requests(
     client: object,
 ) -> None:
     """Verify previously created non-rejected requests reduce remaining available balance."""
-    # One month worked => 1.5 earned days, so only one 1-day request should succeed.
-    user_id = _create_user_with_hire_date(_today_utc_date() - timedelta(days=31))
+    user_id, password = _create_user_with_hire_date(
+        _today_utc_date() - timedelta(days=31)
+    )
     try:
+        email = f"qa.user.{user_id}@example.com"
+        headers = _get_auth_headers(client, email, password)
+
         first_payload = {
             "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=20)).isoformat(),
@@ -140,10 +180,14 @@ def test_create_leave_request_consumes_balance_for_future_requests(
             "end_date": (_today_utc_date() + timedelta(days=21)).isoformat(),
         }
 
-        first_response = client.post("/leave/request", json=first_payload)
+        first_response = client.post(
+            "/leave/request", json=first_payload, headers=headers
+        )
         assert first_response.status_code == 201
 
-        second_response = client.post("/leave/request", json=second_payload)
+        second_response = client.post(
+            "/leave/request", json=second_payload, headers=headers
+        )
         assert second_response.status_code == 400
         assert "Not enough leave days" in second_response.json().get("detail", "")
     finally:
@@ -152,8 +196,13 @@ def test_create_leave_request_consumes_balance_for_future_requests(
 
 def test_get_leave_history_is_newest_first(client: object) -> None:
     """Verify user leave history endpoint returns leave requests ordered newest first."""
-    user_id = _create_user_with_hire_date(_today_utc_date() - timedelta(days=730))
+    user_id, password = _create_user_with_hire_date(
+        _today_utc_date() - timedelta(days=730)
+    )
     try:
+        email = f"qa.user.{user_id}@example.com"
+        headers = _get_auth_headers(client, email, password)
+
         first_payload = {
             "user_id": user_id,
             "start_date": (_today_utc_date() + timedelta(days=30)).isoformat(),
@@ -165,15 +214,19 @@ def test_get_leave_history_is_newest_first(client: object) -> None:
             "end_date": (_today_utc_date() + timedelta(days=41)).isoformat(),
         }
 
-        first_response = client.post("/leave/request", json=first_payload)
+        first_response = client.post(
+            "/leave/request", json=first_payload, headers=headers
+        )
         assert first_response.status_code == 201
         first_id = first_response.json()["id"]
 
-        second_response = client.post("/leave/request", json=second_payload)
+        second_response = client.post(
+            "/leave/request", json=second_payload, headers=headers
+        )
         assert second_response.status_code == 201
         second_id = second_response.json()["id"]
 
-        history_response = client.get(f"/leave/my-requests/{user_id}")
+        history_response = client.get(f"/leave/my-requests/{user_id}", headers=headers)
         assert history_response.status_code == 200
 
         requests = history_response.json()
