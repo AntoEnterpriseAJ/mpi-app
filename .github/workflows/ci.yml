@@ -51,6 +51,7 @@ jobs:
         run: pytest backend/tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mpi_db
+          JWT_SECRET: super-secret-test-key-for-ci
 
   frontend:
     name: Frontend (lint + build)
