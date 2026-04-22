@@ -1,6 +1,6 @@
 from datetime import date
 
-import bcrypt  # <-- Folosim direct bcrypt în loc de passlib
+import bcrypt
 import models
 from database import SessionLocal, engine
 
@@ -24,7 +24,6 @@ def reset_and_seed() -> None:
     print("🌱 Seeding mock users...")
     db = SessionLocal()
     try:
-        # Generăm o parolă standard ("password123") criptată
         default_password = get_password_hash("password123")
 
         mock_users = [

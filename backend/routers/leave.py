@@ -4,7 +4,7 @@ from datetime import date, datetime, timezone
 import models
 import schemas
 from database import SessionLocal
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from routers.auth import get_current_user
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
@@ -47,7 +47,6 @@ def create_leave_request(
         .filter(
             models.LeaveRequest.user_id == current_user.id,
             models.LeaveRequest.status != models.LeaveStatusEnum.REJECTED,
-            # Logica de suprapunere: Start1 <= End2 ȘI End1 >= Start2
             models.LeaveRequest.start_date <= request.end_date,
             models.LeaveRequest.end_date >= request.start_date,
         )
@@ -120,14 +119,15 @@ def require_manager(
 
 
 @router.get("/requests", response_model=list[schemas.LeaveRequestResponse])
-def get_all_pending_requests(
+def get_all_requests(
+    leave_status: models.LeaveStatusEnum = Query(models.LeaveStatusEnum.PENDING),
     db: Session = Depends(get_db),
-    manager: models.User = Depends(require_manager),  # <-- Doar managerii trec de asta!
+    manager: models.User = Depends(require_manager),
 ) -> list[models.LeaveRequest]:
-    """Retrieve all PENDING leave requests across the company (Manager only)."""
+    """Retrieve leave requests across the company, filtered by status (Manager only)."""
     requests = (
         db.query(models.LeaveRequest)
-        .filter(models.LeaveRequest.status == models.LeaveStatusEnum.PENDING)
+        .filter(models.LeaveRequest.status == leave_status)
         .order_by(desc(models.LeaveRequest.created_at))
         .all()
     )

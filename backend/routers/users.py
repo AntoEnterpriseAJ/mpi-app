@@ -47,5 +47,4 @@ async def get_users() -> list[dict]:
     try:
         return MOCK_USERS
     except Exception as err:
-        # Return a generic 500 error without exposing internal exception details
         raise HTTPException(status_code=500, detail="Internal server error") from err
