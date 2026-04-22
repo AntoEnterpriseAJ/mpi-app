@@ -6,6 +6,8 @@ router = APIRouter(tags=["Users"])
 MOCK_USERS = [
     {
         "id": 1,
+        "email": "ion.popescu@company.com",
+        "password_hash": "hashed_password_1",
         "name": "Ion Popescu",
         "role": "User",
         "position": "Backend Developer",
@@ -13,6 +15,8 @@ MOCK_USERS = [
     },
     {
         "id": 2,
+        "email": "maria.ionescu@company.com",
+        "password_hash": "hashed_password_2",
         "name": "Maria Ionescu",
         "role": "Manager",
         "position": "Engineering Manager",
@@ -47,5 +51,4 @@ async def get_users() -> list[dict]:
     try:
         return MOCK_USERS
     except Exception as err:
-        # Return a generic 500 error without exposing internal exception details
         raise HTTPException(status_code=500, detail="Internal server error") from err
