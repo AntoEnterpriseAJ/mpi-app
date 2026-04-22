@@ -104,11 +104,6 @@ def get_user_leave_requests(
         .all()
     )
 
-    if not requests:
-        raise HTTPException(
-            status_code=404, detail="No leave requests found for your account"
-        )
-
     return requests
 
 
