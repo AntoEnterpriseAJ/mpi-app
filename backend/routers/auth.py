@@ -13,7 +13,12 @@ from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-SECRET_KEY = os.getenv("JWT_SECRET", "super-secret-development-key")
+SECRET_KEY = os.getenv("JWT_SECRET")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "FATAL: JWT_SECRET environment variable must be set. Check your .env file."
+    )
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
