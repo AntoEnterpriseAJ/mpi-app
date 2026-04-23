@@ -179,11 +179,17 @@ export function LeaveManagementPage() {
   }, []);
 
   useEffect(() => {
-    void loadUsers();
+    const execute = async () => {
+      await loadUsers();
+    };
+    void execute();
   }, [loadUsers]);
 
   useEffect(() => {
-    void loadHistory(historyUserId);
+    const execute = async () => {
+      await loadHistory(historyUserId);
+    };
+    void execute();
   }, [historyUserId, loadHistory]);
 
   const isDateRangeInvalid =

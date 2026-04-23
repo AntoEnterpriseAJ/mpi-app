@@ -41,7 +41,7 @@ def _create_user(
     role: str,
     hire_days_ago: int = 365,
     email_prefix: str = "qa",
-    password: str = "password123",
+    password: str = "password123",  # noqa: S107
 ) -> tuple[int, str, str]:
     """Create a DB user and return (id, email, password)."""
     db = SessionLocal()
@@ -159,7 +159,7 @@ def test_login_and_me_with_valid_and_invalid_tokens(
     )
     assert login.status_code == 200
     login_body = login.json()
-    assert login_body["token_type"] == "bearer"
+    assert login_body["token_type"] == "bearer"  # noqa: S105
     assert isinstance(login_body["access_token"], str)
     assert login_body["access_token"]
 
