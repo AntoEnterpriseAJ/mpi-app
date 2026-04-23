@@ -21,7 +21,7 @@ import {
 import { API_BASE_URL } from '../config/env';
 
 // Mock fetch globally
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('API Service', () => {
   beforeEach(() => {
@@ -50,7 +50,7 @@ describe('API Service', () => {
     it('should set auth token', () => {
       setAuthToken('test-token');
       // Verify token is set by making a request and checking headers
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify({ id: 1, email: 'test@example.com' }), {
           status: 200,
@@ -84,7 +84,7 @@ describe('API Service', () => {
       const handler = vi.fn();
       setUnauthorizedHandler(handler);
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response('Unauthorized', {
           status: 401,
@@ -121,7 +121,7 @@ describe('API Service', () => {
         seniority: payload.seniority,
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockUser), {
           status: 200,
@@ -149,7 +149,7 @@ describe('API Service', () => {
         seniority: 'Senior',
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify({ detail: 'Email already exists' }), {
           status: 400,
@@ -173,7 +173,7 @@ describe('API Service', () => {
         token_type: 'Bearer',
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockToken), {
           status: 200,
@@ -198,7 +198,7 @@ describe('API Service', () => {
         password: 'WrongPassword',
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify({ detail: 'Invalid credentials' }), {
           status: 401,
@@ -221,7 +221,7 @@ describe('API Service', () => {
         seniority: 'Senior',
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockUser), {
           status: 200,
@@ -240,7 +240,7 @@ describe('API Service', () => {
     });
 
     it('should handle unauthorized error (401)', async () => {
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify({ detail: 'Unauthorized' }), {
           status: 401,
@@ -273,7 +273,7 @@ describe('API Service', () => {
         rejection_reason: null,
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockLeaveRequest), {
           status: 201,
@@ -311,7 +311,7 @@ describe('API Service', () => {
         },
       ];
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockLeaveRequests), {
           status: 200,
@@ -347,7 +347,7 @@ describe('API Service', () => {
         },
       ];
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockLeaveRequests), {
           status: 200,
@@ -381,7 +381,7 @@ describe('API Service', () => {
         rejection_reason: null,
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockLeaveRequest), {
           status: 200,
@@ -417,7 +417,7 @@ describe('API Service', () => {
         rejection_reason: 'Not approved',
       };
 
-      const mockFetch = vi.mocked(global.fetch);
+      const mockFetch = vi.mocked(globalThis.fetch);
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify(mockLeaveRequest), {
           status: 200,

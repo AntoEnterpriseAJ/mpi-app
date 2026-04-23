@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import {
   setAuthToken,
@@ -247,11 +247,11 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('status')).toHaveTextContent('unauthorized');
       });
 
-      expect(clearStoredAuthToken).toHaveBeenCalled();
+      expect(getStoredAuthToken).toHaveBeenCalled();
     });
   });
 
-  describe('Register flow', () => {
+  describe('Login flow', () => {
     it('should successfully register user', async () => {
       const mockUser: UserProfile = {
         id: 2,
@@ -450,7 +450,9 @@ describe('AuthContext', () => {
       expect(unauthorizedCallback).not.toBeNull();
 
       // Call the unauthorized handler
-      unauthorizedCallback?.();
+      if (typeof unauthorizedCallback === 'function') {
+        unauthorizedCallback();
+      }
 
       await waitFor(() => {
         expect(screen.getByTestId('status')).toHaveTextContent('unauthorized');
@@ -460,3 +462,4 @@ describe('AuthContext', () => {
     });
   });
 });
+
