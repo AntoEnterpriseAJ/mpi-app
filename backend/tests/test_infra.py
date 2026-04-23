@@ -62,18 +62,33 @@ def test_schema_generation_users_table(db_inspector: Inspector) -> None:
     assert "users" in tables, "Table 'users' was not created by SQLAlchemy"
     # Check columns
     columns = {col["name"]: col for col in db_inspector.get_columns("users")}
-    expected_columns = ["id", "name", "role", "position", "seniority", "hire_date"]
+    expected_columns = [
+        "id",
+        "email",
+        "password_hash",
+        "created_at",
+        "name",
+        "role",
+        "position",
+        "seniority",
+        "hire_date",
+    ]
     for col_name in expected_columns:
         assert col_name in columns, f"Column {col_name} is missing from 'users' table"
     # Validate primary key and coarse type expectations
     pk = db_inspector.get_pk_constraint("users")
     assert pk.get("constrained_columns") == ["id"], "Primary key must be 'id'"
     assert "int" in str(columns["id"]["type"]).lower(), "'id' must be Integer"
-    for col_name in ["name", "role", "position", "seniority"]:
+    for col_name in ["name", "role", "position", "seniority", "email"]:
         col_type = str(columns[col_name]["type"]).lower()
         assert ("char" in col_type) or ("text" in col_type), (
             f"'{col_name}' must be String-like"
         )
+
+    password_hash_type = str(columns["password_hash"]["type"]).lower()
+    assert ("char" in password_hash_type) or ("text" in password_hash_type), (
+        "'password_hash' must be String-like"
+    )
 
 
 def test_schema_generation_leave_requests_table(db_inspector: Inspector) -> None:
@@ -90,6 +105,9 @@ def test_schema_generation_leave_requests_table(db_inspector: Inspector) -> None
         "days_requested",
         "status",
         "created_at",
+        "reviewed_by",
+        "reviewed_at",
+        "rejection_reason",
     ]
     for col_name in expected_columns:
         assert col_name in columns, (
