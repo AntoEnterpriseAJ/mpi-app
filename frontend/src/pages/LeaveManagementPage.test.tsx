@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LeaveManagementPage } from './LeaveManagementPage';
@@ -31,16 +37,18 @@ function mockFetchWith(handler: FetchResponseHandler) {
   let callIndex = 0;
   return vi
     .spyOn(globalThis, 'fetch')
-    .mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.toString()
-            : input.url;
-      callIndex += 1;
-      return handler(url, init, callIndex);
-    });
+    .mockImplementation(
+      async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input.url;
+        callIndex += 1;
+        return handler(url, init, callIndex);
+      },
+    );
 }
 
 async function selectValidDatesAndSubmit(
@@ -294,8 +302,12 @@ describe('LeaveManagementPage', () => {
     const rows = await screen.findAllByRole('row');
     expect(rows).toHaveLength(3);
 
-    expect(within(rows[1]).getByText(formatDate(newestRequest.start_date))).toBeInTheDocument();
-    expect(within(rows[2]).getByText(formatDate(olderRequest.start_date))).toBeInTheDocument();
+    expect(
+      within(rows[1]).getByText(formatDate(newestRequest.start_date)),
+    ).toBeInTheDocument();
+    expect(
+      within(rows[2]).getByText(formatDate(olderRequest.start_date)),
+    ).toBeInTheDocument();
   });
 
   it('shows no-history message when API returns 404 for user history', async () => {

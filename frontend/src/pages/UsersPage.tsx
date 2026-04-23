@@ -28,7 +28,10 @@ export function UsersPage() {
   }, []);
 
   useEffect(() => {
-    void fetchUsers();
+    const execute = async () => {
+      await fetchUsers();
+    };
+    void execute();
   }, [fetchUsers]);
 
   return (
