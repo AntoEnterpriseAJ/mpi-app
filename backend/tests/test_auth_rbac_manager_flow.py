@@ -218,7 +218,9 @@ def test_regular_user_cannot_access_manager_endpoints(
     assert reject.status_code == 403
 
 
-def test_user_sees_only_own_leave_history(client: object, created_users: list[int]) -> None:
+def test_user_sees_only_own_leave_history(
+    client: object, created_users: list[int]
+) -> None:
     """Verify /leave/my-requests returns only authenticated user's rows."""
     user1_id, user1_email, user1_password = _create_user(
         role=models.RoleEnum.user.value,
