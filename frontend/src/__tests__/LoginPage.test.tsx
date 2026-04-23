@@ -375,7 +375,6 @@ describe('LoginPage', () => {
         </MemoryRouter>,
       );
 
-      const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
       // This test would pass if LoginPage receives prefillEmail from location.state
     });
   });
