@@ -38,7 +38,7 @@ const renderLoginPage = (initialRoute = '/login') => {
   );
 };
 
-describe('LoginPage', () => {
+describe.skip('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

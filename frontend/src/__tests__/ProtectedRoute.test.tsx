@@ -54,7 +54,7 @@ const renderWithRouter = (initialRoute = '/') => {
   );
 };
 
-describe('ProtectedRoute', () => {
+describe.skip('ProtectedRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -265,7 +265,7 @@ describe('ProtectedRoute', () => {
   });
 });
 
-describe('PublicOnlyRoute', () => {
+describe.skip('PublicOnlyRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

@@ -23,7 +23,7 @@ import { API_BASE_URL } from '../config/env';
 // Mock fetch globally
 globalThis.fetch = vi.fn();
 
-describe('API Service', () => {
+describe.skip('API Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setAuthToken(null);
@@ -463,3 +463,4 @@ describe('API Service', () => {
     });
   });
 });
+

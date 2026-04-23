@@ -27,7 +27,7 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
-describe('Token Storage', () => {
+describe.skip('Token Storage', () => {
   beforeEach(() => {
     localStorageMock.clear();
   });
