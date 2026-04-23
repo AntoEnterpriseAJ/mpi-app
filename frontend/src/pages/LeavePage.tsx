@@ -45,25 +45,29 @@ export function LeavePage() {
     formState.endDate.length > 0 &&
     formState.endDate < formState.startDate;
 
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(() => {
     setIsHistoryLoading(true);
     setHistoryError('');
 
-    try {
-      const entries = await getMyLeaveRequests();
-      setHistory(entries);
-    } catch (error) {
-      setHistory([]);
-      setHistoryError(
-        getApiErrorMessage(error, 'Could not load your leave history.'),
-      );
-    } finally {
-      setIsHistoryLoading(false);
-    }
+    getMyLeaveRequests()
+      .then((entries) => {
+        setHistory(entries);
+      })
+      .catch((error: unknown) => {
+        setHistory([]);
+        setHistoryError(
+          getApiErrorMessage(error, 'Could not load your leave history.'),
+        );
+      })
+      .finally(() => {
+        setIsHistoryLoading(false);
+      });
   }, []);
 
   useEffect(() => {
-    void loadHistory();
+    Promise.resolve()
+      .then(() => loadHistory())
+      .catch(() => {});
   }, [loadHistory]);
 
   const statusSummary = useMemo(() => {
@@ -133,7 +137,7 @@ export function LeavePage() {
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => void loadHistory()}
+          onClick={loadHistory}
           disabled={isHistoryLoading}
         >
           {isHistoryLoading ? 'Refreshing...' : 'Refresh history'}
@@ -236,7 +240,7 @@ export function LeavePage() {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={() => void loadHistory()}
+                onClick={loadHistory}
               >
                 Retry
               </button>

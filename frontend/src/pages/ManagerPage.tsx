@@ -21,28 +21,32 @@ export function ManagerPage() {
     {},
   );
 
-  const loadPendingRequests = useCallback(async () => {
+  const loadPendingRequests = useCallback(() => {
     setIsLoading(true);
     setError('');
 
-    try {
-      const requests = await getPendingLeaveRequests();
-      setPendingRequests(requests);
-    } catch (requestError) {
-      setPendingRequests([]);
-      setError(
-        getApiErrorMessage(
-          requestError,
-          'Could not load pending leave requests.',
-        ),
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    getPendingLeaveRequests()
+      .then((requests) => {
+        setPendingRequests(requests);
+      })
+      .catch((requestError: unknown) => {
+        setPendingRequests([]);
+        setError(
+          getApiErrorMessage(
+            requestError,
+            'Could not load pending leave requests.',
+          ),
+        );
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
-    void loadPendingRequests();
+    Promise.resolve()
+      .then(() => loadPendingRequests())
+      .catch(() => {});
   }, [loadPendingRequests]);
 
   const totalPendingDays = useMemo(() => {
