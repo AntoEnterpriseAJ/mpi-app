@@ -26,7 +26,6 @@ vi.mock('../services/tokenStorage', () => ({
 
 // Test components
 const ProtectedPageContent = () => <div data-testid="protected-content">Protected Page</div>;
-const PublicPageContent = () => <div data-testid="public-content">Public Page</div>;
 const LoginPageContent = () => <div data-testid="login-page">Login Page</div>;
 const ManagerPageContent = () => <div data-testid="manager-content">Manager Page</div>;
 
@@ -61,9 +60,9 @@ describe('ProtectedRoute', () => {
   });
 
   describe('Loading state', () => {
-    it('should show loading screen when recovering session', () => {
-      const { getStoredAuthToken } = require('../services/tokenStorage');
-      getStoredAuthToken.mockReturnValue('valid-token');
+    it('should show loading screen when recovering session', async () => {
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
 
       renderWithRouter('/leave');
 
@@ -73,8 +72,8 @@ describe('ProtectedRoute', () => {
 
   describe('Unauthenticated access', () => {
     it('should redirect to login when not authenticated', async () => {
-      const { getStoredAuthToken } = require('../services/tokenStorage');
-      getStoredAuthToken.mockReturnValue(null);
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
+      vi.mocked(getStoredAuthToken).mockReturnValue(null);
 
       renderWithRouter('/leave');
 
@@ -86,11 +85,11 @@ describe('ProtectedRoute', () => {
     });
 
     it('should redirect to login when token is invalid', async () => {
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
       const { ApiError } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('invalid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('invalid-token');
       vi.mocked(getCurrentUser).mockRejectedValue(
         new ApiError(401, 'Unauthorized'),
       );
@@ -116,10 +115,10 @@ describe('ProtectedRoute', () => {
         seniority: 'Senior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockUser);
 
       renderWithRouter('/leave');
@@ -141,10 +140,10 @@ describe('ProtectedRoute', () => {
         seniority: 'Senior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockUser);
 
       renderWithRouter('/leave');
@@ -166,10 +165,10 @@ describe('ProtectedRoute', () => {
         seniority: 'Senior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockManager);
 
       renderWithRouter('/manager');
@@ -189,10 +188,10 @@ describe('ProtectedRoute', () => {
         seniority: 'Junior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockUser);
 
       renderWithRouter('/manager');
@@ -214,10 +213,10 @@ describe('ProtectedRoute', () => {
         seniority: 'Junior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockUser);
 
       renderWithRouter('/manager');
@@ -237,10 +236,10 @@ describe('ProtectedRoute', () => {
         seniority: 'Senior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockManager);
 
       renderWithRouter('/manager');
@@ -253,10 +252,10 @@ describe('ProtectedRoute', () => {
 
   describe('Navigation state', () => {
     it('should preserve location state when redirecting to login', async () => {
-      const { getStoredAuthToken } = require('../services/tokenStorage');
-      getStoredAuthToken.mockReturnValue(null);
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
+      vi.mocked(getStoredAuthToken).mockReturnValue(null);
 
-      const { container } = renderWithRouter('/leave');
+      renderWithRouter('/leave');
 
       // The login page would be rendered with state preserved
       await waitFor(() => {
@@ -273,8 +272,8 @@ describe('PublicOnlyRoute', () => {
 
   describe('Unauthenticated access', () => {
     it('should allow access to public route when not authenticated', async () => {
-      const { getStoredAuthToken } = require('../services/tokenStorage');
-      getStoredAuthToken.mockReturnValue(null);
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
+      vi.mocked(getStoredAuthToken).mockReturnValue(null);
 
       renderWithRouter('/login');
 
@@ -284,8 +283,8 @@ describe('PublicOnlyRoute', () => {
     });
 
     it('should render outlet content when not authenticated', async () => {
-      const { getStoredAuthToken } = require('../services/tokenStorage');
-      getStoredAuthToken.mockReturnValue(null);
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
+      vi.mocked(getStoredAuthToken).mockReturnValue(null);
 
       renderWithRouter('/login');
 
@@ -306,10 +305,10 @@ describe('PublicOnlyRoute', () => {
         seniority: 'Senior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockUser);
 
       renderWithRouter('/login');
@@ -329,10 +328,10 @@ describe('PublicOnlyRoute', () => {
         seniority: 'Senior',
       };
 
-      const { getStoredAuthToken } = require('../services/tokenStorage');
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
       const { getCurrentUser } = await import('../services/api');
 
-      getStoredAuthToken.mockReturnValue('valid-token');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
       vi.mocked(getCurrentUser).mockResolvedValue(mockManager);
 
       renderWithRouter('/login');
@@ -344,9 +343,9 @@ describe('PublicOnlyRoute', () => {
   });
 
   describe('Loading state', () => {
-    it('should show loading screen when recovering session on public route', () => {
-      const { getStoredAuthToken } = require('../services/tokenStorage');
-      getStoredAuthToken.mockReturnValue('valid-token');
+    it('should show loading screen when recovering session on public route', async () => {
+      const { getStoredAuthToken } = await import('../services/tokenStorage');
+      vi.mocked(getStoredAuthToken).mockReturnValue('valid-token');
 
       renderWithRouter('/login');
 

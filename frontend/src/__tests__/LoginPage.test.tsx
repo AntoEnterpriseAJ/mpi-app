@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ToastProvider } from '../contexts/ToastContext';
@@ -165,7 +165,7 @@ describe('LoginPage', () => {
       });
     });
 
-    it('should redirect to /leave for regular user after login', async () => {
+    it('should navigate to /leave for regular user after login', async () => {
       const user = userEvent.setup();
       const mockUser: UserProfile = {
         id: 1,
@@ -183,13 +183,13 @@ describe('LoginPage', () => {
       });
       vi.mocked(getCurrentUser).mockResolvedValue(mockUser);
 
-      const { container } = renderLoginPage();
+      renderLoginPage();
 
-      const emailInput = screen.getByLabelText(/email/i);
+      const emailInputField = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/password/i);
       const submitBtn = screen.getByRole('button', { name: /sign in/i });
 
-      await user.type(emailInput, 'user@example.com');
+      await user.type(emailInputField, 'user@example.com');
       await user.type(passwordInput, 'password123');
       await user.click(submitBtn);
 
@@ -344,11 +344,11 @@ describe('LoginPage', () => {
 
       renderLoginPage();
 
-      const emailInput = screen.getByLabelText(/email/i);
+      const emailInputField = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/password/i);
       const submitBtn = screen.getByRole('button', { name: /sign in/i });
 
-      await user.type(emailInput, 'user@example.com');
+      await user.type(emailInputField, 'user@example.com');
       await user.type(passwordInput, 'password123');
 
       // Button should be enabled before click
@@ -403,11 +403,11 @@ describe('LoginPage', () => {
 
       renderLoginPage('/login');
 
-      const emailInput = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/password/i);
+      const emailInputField = screen.getByLabelText(/email/i);
       const submitBtn = screen.getByRole('button', { name: /sign in/i });
 
-      await user.type(emailInput, 'user@example.com');
+      await user.type(emailInputField, 'user@example.com');
       await user.type(passwordInput, 'password123');
       await user.click(submitBtn);
 
